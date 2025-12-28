@@ -123,8 +123,8 @@ struct CKTcircuit {
                                    (imag) */
     double *CKTirhsOld;         /* previous rhs value (imaginary)*/
     double *CKTirhsSpare;       /* spare rhs value (imaginary)*/
-#ifdef PREDICTOR
     double *CKTpred;            /* predicted solution vector */
+#ifdef PREDICTOR
     double *CKTsols[8];         /* previous 8 solutions */
 #endif /* PREDICTOR */
 
@@ -216,11 +216,10 @@ struct CKTcircuit {
     double CKTreltol;           /* --- */
     double CKTchgtol;           /* --- */
     double CKTvoltTol;          /* --- */
-    /* What is this define for  ? */
-#ifdef NEWTRUNC
-    double CKTlteReltol;
-    double CKTlteAbstol;
-#endif /* NEWTRUNC */
+    double CKTlteReltol;        /* relative error in voltage based truncation error estimation */
+    double CKTlteAbstol;        /* absolute error in voltage based truncation error estimation */
+    double CKTlteTrtol;         /* scaling time step in voltage based truncation error estimation */
+    int CKTnewtrunc;            /* enable lte (local truncation error) based on voltages */
     double CKTgmin;             /* .options GMIN */
     double CKTgshunt;           /* .options RSHUNT */
     double CKTcshunt;           /* .options CSHUNT */
