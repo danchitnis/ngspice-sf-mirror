@@ -755,6 +755,8 @@ show_help(void)
            "  -t, --term=TERM           set the terminal type\n"
            "  -h, --help                display this help and exit\n"
            "  -v, --version             output version information and exit\n"
+           "  -f, --version-full        output full version information\n"
+           "      --version-small       output small version information\n"
            "\n"
            "Report bugs to %s.\n", cp_program, Bug_Addr);
 }
@@ -952,6 +954,8 @@ int main(int argc, char **argv)
             {"define",       required_argument, NULL, 'D'},
             {"help",         no_argument,       NULL, 'h'},
             {"version",      no_argument,       NULL, 'v'},
+            {"version-full", no_argument,       NULL, 'f'},
+            {"version-small", no_argument,      NULL, 256},
             {"batch",        no_argument,       NULL, 'b'},
             {"autorun",      no_argument,       NULL, 'a'},
             {"circuitfile",  required_argument, NULL, 'c'},
@@ -969,7 +973,7 @@ int main(int argc, char **argv)
 
         int option_index = 0;
 
-        int c = getopt_long(argc, argv, "D:hvbac:ino:pqr:st:",
+        int c = getopt_long(argc, argv, "D:hvfbac:ino:pqr:st:",
                             long_options, &option_index);
 
         if (c == -1) {
@@ -1003,6 +1007,22 @@ int main(int argc, char **argv)
             com_version(NULL);
             sp_shutdown(EXIT_INFO);
             break;
+
+        case 'f':       /* Full version info */
+        {
+            wordlist wl = { "-f", NULL, NULL };
+            com_version(&wl);
+            sp_shutdown(EXIT_INFO);
+        }
+        break;
+
+        case 256:       /* --version-small */
+        {
+            wordlist wl = { "-s", NULL, NULL };
+            com_version(&wl);
+            sp_shutdown(EXIT_INFO);
+        }
+        break;
 
         case 'b':       /* Batch mode */
         {
