@@ -16,6 +16,8 @@
 #include "com_measure2.h"
 #include "breakp2.h"
 
+int measure_precision = -1;
+
 typedef enum {
     MEASUREMENT_OK = 0,
     MEASUREMENT_FAILURE = 1
@@ -85,6 +87,9 @@ measure_get_precision(void)
 
     if ((env_ptr = getenv("NGSPICE_MEAS_PRECISION")) != NULL)
         precision = atoi(env_ptr);
+
+    if (measure_precision > 0)
+        precision = measure_precision;
 
     return precision;
 }
@@ -1810,9 +1815,13 @@ get_measure2(
 
         // print results
         if (out_line)
-            sprintf(out_line, "%-20s=  %e targ=  %e trig=  %e\n", mName, (measTarg->m_measured - measTrig->m_measured), measTarg->m_measured, measTrig->m_measured);
+            sprintf(out_line, "%-20s=  %.*e targ=  %.*e trig=  %.*e\n", 
+                mName, precision, (measTarg->m_measured - measTrig->m_measured),
+                precision, measTarg->m_measured, precision, measTrig->m_measured);
         else
-            fprintf(mout,"%-20s=  %e targ=  %e trig=  %e\n", mName, (measTarg->m_measured - measTrig->m_measured), measTarg->m_measured, measTrig->m_measured);
+            fprintf(mout,"%-20s=  %.*e targ=  %.*e trig=  %.*e\n", mName, precision,
+                (measTarg->m_measured - measTrig->m_measured),
+                precision, measTarg->m_measured, precision, measTrig->m_measured);
 
         *result = (measTarg->m_measured - measTrig->m_measured);
 
@@ -1883,9 +1892,9 @@ err_ret1:
 
         // print results
         if (out_line)
-            sprintf(out_line, "%-20s=  %e\n", mName, meas->m_measured);
+            sprintf(out_line, "%-20s=  %.*e\n", mName, precision, meas->m_measured);
         else
-            fprintf(mout,"%-20s=  %e\n", mName, meas->m_measured);
+            fprintf(mout,"%-20s=  %.*e\n", mName, precision, meas->m_measured);
 
         *result = meas->m_measured;
 
@@ -1924,7 +1933,7 @@ err_ret2:
         if (out_line)
             sprintf(out_line, "%-20s=   %.*e\n", mName, precision, meas->m_measured);
         else
-            fprintf(mout, "%-20s=  %e\n", mName, meas->m_measured);
+            fprintf(mout, "%-20s=  %.*e\n", mName, precision, meas->m_measured);
 
         *result = meas->m_measured;
 
@@ -2012,9 +2021,11 @@ err_ret4:
 
         // print results
         if (out_line)
-            sprintf(out_line, "%-20s=  %e from=  %e to=  %e\n", mName, meas->m_measured, meas->m_at, meas->m_measured_at);
+            sprintf(out_line, "%-20s=  %.*e from=  %.*e to=  %.*e\n", mName,
+                precision, meas->m_measured, precision, meas->m_at, precision, meas->m_measured_at);
         else
-            fprintf(mout, "%-20s=  %e from=  %e to=  %e\n", mName, meas->m_measured, meas->m_at, meas->m_measured_at);
+            fprintf(mout, "%-20s=  %.*e from=  %.*e to=  %.*e\n", mName,
+                precision, meas->m_measured, precision, meas->m_at, precision, meas->m_measured_at);
 
         *result = meas->m_measured;
 
@@ -2059,17 +2070,21 @@ err_ret5:
         if ((mFunctionType == AT_MIN) || (mFunctionType == AT_MAX)) {
             // print results
             if (out_line)
-                sprintf(out_line, "%-20s=  %e at=  %e\n", mName, measTrig->m_measured, measTrig->m_measured_at);
+                sprintf(out_line, "%-20s=  %.*e at=  %.*e\n", 
+                    mName, precision, measTrig->m_measured, precision, measTrig->m_measured_at);
             else
-                fprintf(mout, "%-20s=  %e at=  %e\n", mName, measTrig->m_measured, measTrig->m_measured_at);
+                fprintf(mout, "%-20s=  %.*e at=  %.*e\n", 
+                    mName, precision, measTrig->m_measured, precision, measTrig->m_measured_at);
 
             *result = measTrig->m_measured;
         } else {
             // print results
             if (out_line)
-                sprintf(out_line, "%-20s=  %e with=  %e\n", mName, measTrig->m_measured_at, measTrig->m_measured);
+                sprintf(out_line, "%-20s=  %.*e with=  %.*e\n", 
+                    mName, precision, measTrig->m_measured_at, precision, measTrig->m_measured);
             else
-                fprintf(mout, "%-20s=  %e with=  %e\n", mName, measTrig->m_measured_at, measTrig->m_measured);
+                fprintf(mout, "%-20s=  %.*e with=  %.*e\n", 
+                    mName, precision, measTrig->m_measured_at, precision, measTrig->m_measured);
 
             *result = measTrig->m_measured_at;
         }
@@ -2117,9 +2132,11 @@ err_ret6:
 
         // print results
         if (out_line)
-            sprintf(out_line, "%-20s=  %e from=  %e to=  %e\n", mName, (maxValue - minValue), measTrig->m_from, measTrig->m_to);
+            sprintf(out_line, "%-20s=  %.*e from=  %.*e to=  %.*e\n",
+                mName, precision, (maxValue - minValue), precision, measTrig->m_from, precision, measTrig->m_to);
         else
-            fprintf(mout, "%-20s=  %e from=  %e to=  %e\n", mName, (maxValue - minValue), measTrig->m_from, measTrig->m_to);
+            fprintf(mout, "%-20s=  %.*e from=  %.*e to=  %.*e\n",
+                mName, precision, (maxValue - minValue), precision, measTrig->m_from, precision, measTrig->m_to);
 
         *result = (maxValue - minValue);
 

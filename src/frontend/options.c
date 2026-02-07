@@ -342,6 +342,16 @@ cp_usrset(struct variable *var, bool isset)
             raw_prec = var->va_num;
         else
             fprintf(cp_err, "Bad 'rawfileprec' \"%s\"\n", var->va_name);
+    }
+    else if (eq(var->va_name, "measureprec")) {
+        if ((var->va_type == CP_BOOL) && (isset == FALSE))
+            measure_precision = -1;
+        else if (var->va_type == CP_REAL)
+            measure_precision = (int)floor(var->va_real + 0.5);
+        else if (var->va_type == CP_NUM)
+            measure_precision = var->va_num;
+        else
+            fprintf(cp_err, "Bad 'measureprec' \"%s\"\n", var->va_name);
     } else if (eq(var->va_name, "numdgt")) {
         if ((var->va_type == CP_BOOL) && (isset == FALSE))
             cp_numdgt = -1;
@@ -350,7 +360,7 @@ cp_usrset(struct variable *var, bool isset)
         else if (var->va_type == CP_NUM)
             cp_numdgt = var->va_num;
         else
-            fprintf(cp_err, "Excuse me??\n");
+            fprintf(cp_err, "Bad 'numdgt' \"%s\"\n", var->va_name);
     } else if (eq(var->va_name, "unixcom")) {
         cp_dounixcom = isset;
         if (isset) {

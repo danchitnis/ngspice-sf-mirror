@@ -76,6 +76,7 @@ char *ft_setkwords[] = {
     "lprplot5",
     "lprps",
     "maxwins",
+    "measureprec",
     "modelcard",
     "modelline",
     "moremode",
