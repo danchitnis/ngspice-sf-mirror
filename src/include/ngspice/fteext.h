@@ -304,6 +304,9 @@ extern struct plot *raw_read(char *name);
 extern bool do_measure(char *what, bool chk_only);
 extern bool check_autostop(char *what);
 
+/* com_measure2.c*/
+extern int measure_precision;
+
 /* resource.c */
 
 extern void ft_ckspace(void);
