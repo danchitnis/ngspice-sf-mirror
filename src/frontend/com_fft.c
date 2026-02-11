@@ -60,6 +60,9 @@ com_fft(wordlist *wl)
     length = (plot_cur->pl_scale)->v_length;
     time = (plot_cur->pl_scale)->v_realdata;
     span = time[length-1] - time[0];
+    if (length > 1) {
+        span += time[1] - time[0];
+    }
 
 #ifdef HAVE_LIBFFTW3
     fpts = length/2 + 1;
@@ -75,7 +78,7 @@ com_fft(wordlist *wl)
 #endif
 
     win = TMALLOC(double, length);
-    maxt = time[length-1];
+    maxt = span + time[0];
     if (!cp_getvar("specwindow", CP_STRING, window, sizeof(window)))
         strcpy(window, "hanning");
     if (!cp_getvar("specwindoworder", CP_NUM, &order, 0))
