@@ -189,6 +189,12 @@ com_fft(wordlist *wl)
             fdvec[i][j].cx_imag = out[j][1]/scale;
         }
 
+        /* for even-length input, the nyquist bin is paired with itself
+           and normalization does not require a factor of 2  */
+        if ( length % 2 == 0) {
+            fdvec[i][fpts-1].cx_real /= 2;
+            fdvec[i][fpts-1].cx_imag /= 2;
+        }
     }
 
     fftw_destroy_plan(plan_forward);
