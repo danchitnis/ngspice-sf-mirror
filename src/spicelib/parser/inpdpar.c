@@ -72,7 +72,7 @@ INPdevParse(char **line, CKTcircuit *ckt, int dev, GENinstance *fast,
                 errbuf = copy("  unknown parameter ($). Check the compatibility flag!\n");
             }
             else {
-                errbuf = tprintf("  unknown parameter (%s) \n", parameter);
+                errbuf = tprintf("  unknown instance parameter (%s) \n", parameter);
             }
             rtn = errbuf;
             goto quit;
