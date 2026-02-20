@@ -59,6 +59,7 @@ IOP( "mulu0", BSIM4_MULU0, IF_REAL, "Low field mobility multiplier"),
 IOP( "xgw",  BSIM4_XGW, IF_REAL, "Distance from gate contact center to device edge"),
 IOP( "ngcon", BSIM4_NGCON, IF_REAL, "Number of gate contacts"),
 IOP( "wnflag", BSIM4_WNFLAG, IF_INTEGER, "W/NF device flag for bin selection"),
+IOPU("dtemp", BSIM4_DTEMP, IF_REAL,    "Instance temperature difference"),
 
 IOP( "trnqsmod", BSIM4_TRNQSMOD, IF_INTEGER, "Transient NQS model selector"),
 IOP( "acnqsmod", BSIM4_ACNQSMOD, IF_INTEGER, "AC NQS model selector"),

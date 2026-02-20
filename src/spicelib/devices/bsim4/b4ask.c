@@ -135,6 +135,9 @@ BSIM4instance *here = (BSIM4instance*)inst;
         case BSIM4_WNFLAG:
             value->iValue = here->BSIM4wnflag;
             return(OK);
+        case BSIM4_DTEMP:
+            value->rValue = here->BSIM4dtemp;
+            return(OK);
         case BSIM4_XGW:
             value->rValue = here->BSIM4xgw;
             return(OK);
