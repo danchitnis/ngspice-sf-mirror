@@ -86,12 +86,7 @@ VSRCload(GENmodel *inModel, CKTcircuit *ckt)
                 } else {
                     time = ckt->CKTtime;
                 }
-                /* use the transient functions. Parameter limits:
-                   TR negative or 0 --> TR = ckt->CKTstep
-                   TF negative or 0 --> TF = ckt->CKTstep
-                   PW < 0 --> PW = 0
-                   PER <= 0 --> PER = TR + TF + PW
-                */
+                /* use the transient functions. */
                 switch(here->VSRCfunctionType) {
 
                     default:
@@ -99,6 +94,12 @@ VSRCload(GENmodel *inModel, CKTcircuit *ckt)
                         break;
 
                     case PULSE: {
+                 /* Parameter limits :
+                   TR negative or 0 --> TR = ckt->CKTstep
+                   TF negative or 0 --> TF = ckt->CKTstep
+                   PW < 0 --> PW = 0
+                   PER <= 0 --> PER = TR + TF + PW
+                 */
                         double V1, V2, TD, TR, TF, PW, PER;
                         double basetime = 0;
                         double PHASE;
