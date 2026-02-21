@@ -86,7 +86,12 @@ VSRCload(GENmodel *inModel, CKTcircuit *ckt)
                 } else {
                     time = ckt->CKTtime;
                 }
-                /* use the transient functions */
+                /* use the transient functions. Parameter limits:
+                   TR negative or 0 --> TR = ckt->CKTstep
+                   TF negative or 0 --> TF = ckt->CKTstep
+                   PW < 0 --> PW = 0
+                   PER <= 0 --> PER = TR + TF + PW
+                */
                 switch(here->VSRCfunctionType) {
 
                     default:
@@ -106,17 +111,17 @@ VSRCload(GENmodel *inModel, CKTcircuit *ckt)
                         TD = here->VSRCfunctionOrder > 2
                            ? here->VSRCcoeffs[2] : 0.0;
                         TR = here->VSRCfunctionOrder > 3
-                           && here->VSRCcoeffs[3] != 0.0
+                           && here->VSRCcoeffs[3] > 0.0
                            ? here->VSRCcoeffs[3] : ckt->CKTstep;
                         TF = here->VSRCfunctionOrder > 4
-                           && here->VSRCcoeffs[4] != 0.0
+                           && here->VSRCcoeffs[4] > 0.0
                            ? here->VSRCcoeffs[4] : ckt->CKTstep;
                         PW = here->VSRCfunctionOrder > 5
-                           && here->VSRCcoeffs[5] != 0.0
-                           ? here->VSRCcoeffs[5] : ckt->CKTfinalTime;
+                           && here->VSRCcoeffs[5] >= 0.0
+                           ? here->VSRCcoeffs[5] : 0.0;
                         PER = here->VSRCfunctionOrder > 6
-                           && here->VSRCcoeffs[6] != 0.0
-                           ? here->VSRCcoeffs[6] : ckt->CKTfinalTime;
+                           && here->VSRCcoeffs[6] > 0.0
+                           ? here->VSRCcoeffs[6] : TR + TF + PW;
 
                         /* shift time by delay time TD */
                         time -=  TD;
