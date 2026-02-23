@@ -370,8 +370,8 @@ static char *two2three_translate(
 
     if(num_coefs < 1) {
         char *errmsg;
-        printf("ERROR - Number of connections differs from poly dimension\n");
-        printf("ERROR  while parsing: %s\n", orig_card);
+        fprintf(stderr, "ERROR - Number of connections differs from poly dimension\n");
+        fprintf(stderr, "       while parsing: %s\n", orig_card);
         errmsg = copy("ERROR in two2three_translate -- Argument to poly() is not an integer\n");
         *inst_card = copy("* ERROR - Number of connections differs from poly dimension\n");
         *mod_card  = copy(" * ERROR - Number of connections differs from poly dimension\n");
