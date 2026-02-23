@@ -5661,11 +5661,9 @@ static void inp_reorder_params(
 }
 
 
-// iterate through deck and find lines with multiply defined parameters
-//
-// split line up into multiple lines and place those new lines immediately
-// after the current multi-param line in the deck
-
+/* Iterate through deck and find lines with more than one parameter defined
+   Split line up into multiple lines and place those new lines immediately
+   after the current multi-param line in the deck */
 static int inp_split_multi_param_lines(struct card *card, int line_num)
 {
     for (; card; card = card->nextcard) {
@@ -5701,6 +5699,12 @@ static int inp_split_multi_param_lines(struct card *card, int line_num)
                 int paren_depth = 0;
 
                 beg_param = skip_back_ws(equal_ptr, curr_line);
+                /* Special treatment if .param is a .func:
+                   move back to opening '(' */
+                if (*(beg_param - 1) == ')') {
+                    while (beg_param > curr_line && *beg_param != '(')
+                        beg_param--;
+                }
                 beg_param = skip_back_non_ws(beg_param, curr_line);
                 end_param = skip_ws(equal_ptr + 1);
                 while (*end_param && !isspace_c(*end_param)) {
