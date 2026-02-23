@@ -1331,6 +1331,8 @@ static struct inp_read_t inp_read(FILE* fp, int call_depth, const char* dir_name
     static int is_control = 0; /* We are reading from a .control section */
 
     bool found_end = FALSE, shell_eol_continuation = FALSE;
+    static bool biaswarn = FALSE;
+    static bool hdlwarn = FALSE;
 #ifdef CIDER
     static int in_cider_model = 0;
 #endif
@@ -1440,6 +1442,26 @@ static struct inp_read_t inp_read(FILE* fp, int call_depth, const char* dir_name
                 memcpy(buffer, ".inc", 4);
             }
 
+        if (ciprefix(".hdl", buffer)) {
+            if (!hdlwarn) {
+                fprintf(cp_err, "Warning: Dot command .hdl is not supported, ingnored\n");
+                fprintf(cp_err, "    line no. %d, %s", line_number, buffer);
+                fprintf(cp_err, "    file %s\n", file_name);
+                fprintf(cp_err, "    This message will be posted only once!\n\n");
+                hdlwarn = TRUE;
+            }
+            tfree(buffer);
+            continue;
+        }
+        if (ciprefix(".biaschk", buffer)) {
+            if (!biaswarn) {
+                fprintf(cp_err, "Warning: Dot command .biaschk is not supported, ingnored\n");
+                fprintf(cp_err, "    This message will be posted only once!\n\n");
+                biaswarn = TRUE;
+            }
+            tfree(buffer);
+            continue;
+        }
         /* now handle .include statements */
         if (ciprefix(".include", buffer) || ciprefix(".inc", buffer)) {
 
@@ -2842,6 +2864,7 @@ static void inp_fix_macro_param_func_paren_io(struct card *card)
                 str_ptr[3] = 'c';
                 str_ptr[4] = ' ';
             }
+//            fprintf(stdout, "%s\n", card->line);
         }
     }
 }
