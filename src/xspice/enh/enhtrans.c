@@ -301,7 +301,7 @@ static char *two2three_translate(
     char  **out_conn;
     char  **in_conn;
     char  **coef;
-
+    char* multibeg, *multiend, *multi = NULL;
     char  *card;
 
 
@@ -312,6 +312,20 @@ static char *two2three_translate(
 
     /* Put the first character into local storage for checking type */
     type = *orig_card;
+
+    /* There may be a multiplier m=val 
+       Remove it here, add it later */
+    multibeg = strstr(orig_card, " m=");
+    if (multibeg) {
+        multiend = multibeg + 3;
+        while (*multiend == ' ')
+            multiend++;
+        while (*multiend && *multiend != ' ')
+            multiend++;
+        multi = copy_substring(multibeg, multiend);
+        while (multibeg < multiend)
+            *(multibeg++) = ' ';
+    }
 
     /* Count the number of tokens for use in parsing */
     num_tokens = count_tokens(orig_card);
@@ -414,6 +428,9 @@ static char *two2three_translate(
     for(i = 0; i < num_coefs; i++)
         mod_card_len += strlen(coef[i]) + 1;
 
+    if (multi && (type == 'g' || type == 'G' || type == 'f'|| type == 'F'))
+        mod_card_len += strlen(multi) + 1;
+
     /* Allocate space for the cards and write them into the strings */
 
     *inst_card = TMALLOC(char, inst_card_len);
@@ -459,6 +476,11 @@ static char *two2three_translate(
     for(i = 0; i < num_coefs; i++)
         sprintf(*mod_card + strlen(*mod_card), "%s ", coef[i]);
     sprintf(*mod_card + strlen(*mod_card), "]");
+
+    if (multi && (type == 'g' || type == 'G' || type == 'f' || type == 'F')) {
+        sprintf(*mod_card + strlen(*mod_card), " %s", multi);
+        tfree(multi);
+    }
 
 #ifdef TRACE
     /* SDB debug statement */
