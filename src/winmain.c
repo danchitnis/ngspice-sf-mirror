@@ -1499,7 +1499,7 @@ win_x_fprintf(FILE *stream, const char *format, ...)
     if ((stream == stdout) || (stream == stderr)) {
 
         s[0] = SE;
-        result = vsprintf(s, format, args);
+        result = vsnprintf(s, IOBufSize, format, args);
         win_x_fputs(s, stream);
     } else
         result = vfprintf(stream, format, args);
