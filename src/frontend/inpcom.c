@@ -1775,14 +1775,14 @@ static struct inp_read_t inp_read(FILE* fp, int call_depth, const char* dir_name
 #endif
             /* no lower case letters for lines beginning with: */
             else if (!(ciprefix(".lib", buffer) || ciprefix(".inc", buffer) ||
-                (is_control && (
+                ((comfile || is_control) && (
                     ciprefix("write", buffer) ||
                     ciprefix("wrdata", buffer) ||
                     ciprefix("codemodel", buffer) ||
                     ciprefix("osdi", buffer) ||
                     ciprefix("pre_osdi", buffer) ||
                     ciprefix("echo", buffer) || ciprefix("shell", buffer) ||
-                    ciprefix("source", buffer) ||ciprefix("cd ", buffer) ||
+                    ciprefix("source", buffer) ||ciprefix("cd", buffer) ||
                     ciprefix("load", buffer) || ciprefix("setcs", buffer))))) {
                 /* lower case for all other lines */
                 for (s = buffer; *s && (*s != '\n'); s++)
