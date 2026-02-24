@@ -236,8 +236,7 @@ message(dico_t *dico, const char *fmt, ...)
         else {
             fprintf
             (stderr,
-                "Error in netlist line no. %d:\n"
-                "%s\n\n",
+                "Error in netlist line no. %d, new internal line no. %d:\n\n",
                 dico->srcline, dico->oldline);
         }
     }
