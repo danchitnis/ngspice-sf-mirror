@@ -67,10 +67,14 @@ INPdoOpts(
             }
             continue;
         }
-
-        errmsg = TMALLOC(char, 100);
-        (void) strcpy(errmsg," Error: unknown option - ignored\n");
-        optCard->error = INPerrCat(optCard->error,errmsg);
-        fprintf(stderr, "%s\n", optCard->error);
+        /* print err message only if it is not just a number */
+        char* ctoken = token;
+        while (*ctoken && strchr("0123456789.e+-", *ctoken))
+            ctoken++;
+        if (*ctoken) {
+            errmsg = tprintf("Error: unknown option %s - ignored\n", token);
+            optCard->error = INPerrCat(optCard->error, errmsg);
+            fprintf(stderr, "%s\n", optCard->error);
+        }
     }
 }
