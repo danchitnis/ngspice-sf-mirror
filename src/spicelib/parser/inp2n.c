@@ -71,7 +71,10 @@ void INP2N(CKTcircuit *ckt, INPtables *tab, struct card *current) {
 
   if (i >= 2) {
       c = INPgetMod(ckt, token, &thismodel, tab);
-      if (c) {
+      /* check if using model binning -- pass in line since need 'l' and 'w' */
+      if (!thismodel)
+          txfree(INPgetModBin(ckt, token, &thismodel, tab, line));
+      if (c && !thismodel) {
           LITERR(c);
           tfree(c);
           tfree(token);
