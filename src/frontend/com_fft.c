@@ -84,7 +84,7 @@ com_fft(wordlist *wl)
         order = 2;
 
     if (fft_windows(window, win, time, length, maxt, span, order) == 0)
-        goto done;
+        fprintf(cp_err, "Warning: unknown window type %s for fft, set to \"none\" \n", window);
 
     names = ft_getpnames_quotes(wl, TRUE);
     vlist = NULL;
