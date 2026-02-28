@@ -59,7 +59,7 @@ com_fft(wordlist *wl)
 
     length = (plot_cur->pl_scale)->v_length;
     time = (plot_cur->pl_scale)->v_realdata;
-    span = time[length-1] - time[0];
+    span = time[length-1] - time[0] + time[length-1] - time[length-2];
 
 #ifdef HAVE_LIBFFTW3
     fpts = length/2 + 1;
