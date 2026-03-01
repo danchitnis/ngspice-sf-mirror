@@ -181,10 +181,12 @@ com_fft(wordlist *wl)
         scale = (double) fpts - 1.0;
         fdvec[i][0].cx_real = out[0][0]/scale/2.0;
         fdvec[i][0].cx_imag = 0.0;
-        for (j = 1; j < fpts; j++) {
+        for (j = 1; j < fpts-1; j++) {
             fdvec[i][j].cx_real = out[j][0]/scale;
             fdvec[i][j].cx_imag = out[j][1]/scale;
         }
+        fdvec[i][fpts-1].cx_real = out[fpts-1][0]/scale/2.0;
+        fdvec[i][fpts-1].cx_imag = 0.0;
 
     }
 
