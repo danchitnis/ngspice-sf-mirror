@@ -148,6 +148,7 @@ com_linearnp(wordlist* wl)
     struct dvec* lin;
     int expo, len, i;
     wordlist* wlnew;
+    bool nponly = FALSE;
 
     if (!plot_cur || !plot_cur->pl_typename || !ciprefix("tran", plot_cur->pl_typename)) {
         fprintf(cp_err, "Error: plot must be a transient analysis\n");
@@ -246,7 +247,14 @@ com_linearnp(wordlist* wl)
         newtime->v_realdata[i] = d;
     new->pl_scale = new->pl_dvecs = newtime;
 
-    if (wl) {
+    /* check if "np=" is the only entry in wl.
+       If yes, linearize all vectors */
+    if (wl && ciprefix("np=", wl->wl_word) && wl->wl_next == NULL) {
+        nponly = TRUE;
+    }
+
+    if (wl && !nponly) {
+        /* check for vectors given in the command line */
         while (wl) {
             if (ciprefix("np=", wl->wl_word)) {
                 wl = wl->wl_next;
@@ -264,6 +272,7 @@ com_linearnp(wordlist* wl)
         }
     }
     else {
+        /* linearize all vectors of the current plot */
         for (v = old->pl_dvecs; v; v = v->v_next) {
             if (v == old->pl_scale)
                 continue;
