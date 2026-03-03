@@ -781,9 +781,10 @@ cx_fft(void *data, short int type, int length, int *newlength, short int *newtyp
             outdata[i].cx_real = out[i][0]/scale;
             outdata[i].cx_imag = out[i][1]/scale;
         }
-        outdata[fpts-1].cx_real = out[fpts-1][0]/scale/2.0;
-        outdata[fpts-1].cx_imag = 0.0;
-
+        if (length % 2 == 0) {
+            outdata[fpts-1].cx_real = out[fpts-1][0]/scale/2.0;
+            outdata[fpts-1].cx_imag = 0.0;
+        }
         fftw_free(ind);
 
 #else /* Green's FFT */
