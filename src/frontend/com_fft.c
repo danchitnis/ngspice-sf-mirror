@@ -223,7 +223,7 @@ com_fft(wordlist *wl)
             fdvec[i][j].cx_real = in[2*j]/scale;
             fdvec[i][j].cx_imag = in[2*j+1]/scale;
         }
-        fdvec[i][fpts-1].cx_real = in[1]/scale;
+        fdvec[i][fpts-1].cx_real = in[1]/scale/2.0;
         fdvec[i][fpts-1].cx_imag = 0.0;
 
         tfree(in);
