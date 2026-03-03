@@ -181,7 +181,7 @@ com_fft(wordlist *wl)
         scale = (double) fpts - 1.0;
         fdvec[i][0].cx_real = out[0][0]/scale/2.0;
         fdvec[i][0].cx_imag = 0.0;
-        for (j = 1; j < fpts-1; j++) {
+        for (j = 1; j < fpts; j++) {
             fdvec[i][j].cx_real = out[j][0]/scale;
             fdvec[i][j].cx_imag = out[j][1]/scale;
         }
@@ -419,7 +419,7 @@ com_psd(wordlist *wl)
         fdvec[i][0].cx_real = out[0][0]*out[0][0]/intres;
         fdvec[i][0].cx_imag = 0;
         noipower = fdvec[i][0].cx_real;
-        for (j = 1; j < fpts-1; j++) {
+        for (j = 1; j < fpts; j++) {
             fdvec[i][j].cx_real = 2.* (out[j][0]*out[j][0] + out[j][1]*out[j][1])/intres;
             fdvec[i][j].cx_imag = 0;
             noipower += fdvec[i][j].cx_real;

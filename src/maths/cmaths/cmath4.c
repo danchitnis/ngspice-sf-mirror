@@ -777,7 +777,7 @@ cx_fft(void *data, short int type, int length, int *newlength, short int *newtyp
         scale = (double) fpts - 1.0;
         outdata[0].cx_real = out[0][0]/scale/2.0;
         outdata[0].cx_imag = 0.0;
-        for (i = 1; i < fpts-1; i++) {
+        for (i = 1; i < fpts; i++) {
             outdata[i].cx_real = out[i][0]/scale;
             outdata[i].cx_imag = out[i][1]/scale;
         }
