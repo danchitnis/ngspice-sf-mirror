@@ -205,18 +205,18 @@ ISRCload(GENmodel *inModel, CKTcircuit *ckt)
 
                     case SFFM: {
 
-                        double VO, VA, FM, MDI, FC, TD, PHASEM, PHASEC;
+                        double VO, VA, FC, MDI, FM, TD, PHASEM, PHASEC;
                         double phasec;
                         double phasem;
                         static bool warn1 = FALSE, warn2 = FALSE;
 
                         VO = here->ISRCcoeffs[0];
                         VA = here->ISRCcoeffs[1];
-                        FM = here->ISRCfunctionOrder > 2
+                        FC = here->ISRCfunctionOrder > 2
                            ? here->ISRCcoeffs[2] : (5./ckt->CKTfinalTime);
                         MDI = here->ISRCfunctionOrder > 3
                            ? here->ISRCcoeffs[3] : 90.0;
-                        FC  = here->ISRCfunctionOrder > 4
+                        FM  = here->ISRCfunctionOrder > 4
                            && here->ISRCcoeffs[4]
                            ? here->ISRCcoeffs[4] : (500./ckt->CKTfinalTime);
                         TD = here->ISRCfunctionOrder > 5
