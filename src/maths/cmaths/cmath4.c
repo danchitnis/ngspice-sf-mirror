@@ -770,7 +770,7 @@ cx_fft(void *data, short int type, int length, int *newlength, short int *newtyp
         for (i = 0; i < length; i++)
             ind[i] = realdata[i] * win[i];
 
-        plan_forward = fftw_plan_dft_r2c_1d(length-1, ind, out, FFTW_ESTIMATE);
+        plan_forward = fftw_plan_dft_r2c_1d(length, ind, out, FFTW_ESTIMATE);
 
         fftw_execute(plan_forward);
 

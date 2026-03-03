@@ -167,7 +167,7 @@ com_fft(wordlist *wl)
         in[j] = tdvec[0][j]*win[j];
 
     /* data have same type and length - so we need only one plan */
-    plan_forward = fftw_plan_dft_r2c_1d(length-1, in, out, FFTW_ESTIMATE); 
+    plan_forward = fftw_plan_dft_r2c_1d(length, in, out, FFTW_ESTIMATE); 
 
     for (i = 0; i<ngood; i++) {
 
