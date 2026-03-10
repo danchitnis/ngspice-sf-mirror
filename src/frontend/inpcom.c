@@ -1105,6 +1105,16 @@ struct card *inp_readall(FILE *fp, const char *dir_name, const char* file_name,
         if (newcompat.ps && newcompat.a)
             pspice_compat_a(working);
 
+        /* another warning that codemodels or osdi libs have not been loaded successfully */
+        if (ft_osdierror) {
+            fprintf(stderr, "Warning: OSDI libs have not been loaded successfully.\n");
+            fprintf(stderr, "    Any of the following steps may fail, if Verilog A models are involved!.\n\n");
+        }
+        if (ft_codemodelerror) {
+            fprintf(stderr, "Warning: code models like analog.cm have not been loaded successfully.\n");
+            fprintf(stderr, "    Any of the following steps may fail, if code models are involved!.\n\n");
+        }
+
         struct nscope *root = inp_add_levels(working);
 
         inp_probe(working);
