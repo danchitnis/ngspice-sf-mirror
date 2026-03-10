@@ -58,6 +58,7 @@ static void free_dlerr_msg(char *msg);
 #define RTLD_NOW    2 /* immediate function call binding */
 #define RTLD_GLOBAL 4 /* symbols in this dlopen'ed obj are visible to other
                        * dlopen'ed objs */
+#define F_OK 0
 #endif /* ifndef HAS_WINGUI */
 
 #include "ngspice/dllitf.h" /* the coreInfo Structure*/
@@ -405,9 +406,14 @@ int load_opus(const char *name)
     lib = dlopen(name, RTLD_NOW);
 //    fprintf(stdout, "Lib %s has handle %p\n", name, lib);
     if (!lib) {
-        msg = dlerror();
-        fprintf(stderr, "Error opening code model \"%s\"\n: %s\n", name, msg);
-        FREE_DLERR_MSG(msg);
+        int acc = access(name, F_OK);
+        if (acc != 0) {
+            fprintf(stderr, "Error opening code model \"%s\": No such file or directory!\n",
+                name);
+        }
+        else
+            fprintf(stderr, "Error opening code model \"%s\"\n", name);
+
         return 1;
     }
 
