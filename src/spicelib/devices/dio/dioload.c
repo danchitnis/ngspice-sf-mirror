@@ -839,7 +839,7 @@ next2:      *(ckt->CKTstate0 + here->DIOvoltage) = vd;
 
             if (revrec) {
                 double fac, ceqrr, dcrrdvd, grr;
-                double gain, ceqrrd, geqrrd;
+                double ceqrrd, geqrrd;
                 /* QP subcircuit */
                 fac = here->DIOtTransitTime / model->DIOsoftRevRecParam;
                 dcrrdvd = fac*gdres;
@@ -850,10 +850,10 @@ next2:      *(ckt->CKTstate0 + here->DIOvoltage) = vd;
                 *(here->DIOqpPosPrimePtr) += -dcrrdvd;
                 *(here->DIOqpNegPtr)      += dcrrdvd;
                 /* Contribution to diode current */
-                gain = (1 - model->DIOsoftRevRecParam) / here->DIOtTransitTime;
+                here->DIOqpGain = (1 - model->DIOsoftRevRecParam) / here->DIOtTransitTime;
                 /* Linear contribution -(1-vp)/tau*ddt(Qp) */
-                geqrrd = gain*gqcsr;
-                ceqrrd = gain*cqcsr - geqrrd*vqp;
+                geqrrd = here->DIOqpGain*gqcsr;
+                ceqrrd = here->DIOqpGain*cqcsr - geqrrd*vqp;
                 *(ckt->CKTrhs + here->DIOposPrimeNode) -= ceqrrd;
                 *(ckt->CKTrhs + here->DIOnegNode) += ceqrrd;
                 *(here->DIOposPrimeQpPtr) += geqrrd;

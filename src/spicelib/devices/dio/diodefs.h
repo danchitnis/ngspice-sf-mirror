@@ -94,6 +94,8 @@ typedef struct sDIOinstance {
     double DIOcap;   /* stores the diode capacitance */
     double DIOcapSW; /* stores the diode Sw capacitance */
 
+    double DIOqpGain;/* converts iterated diffcharge current */
+
     double *DIOsens; /* stores the perturbed values of geq and ceq in ac
                          sensitivity analyis */
 

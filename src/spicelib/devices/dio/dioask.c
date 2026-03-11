@@ -75,6 +75,8 @@ DIOask (CKTcircuit *ckt, GENinstance *inst, int which, IFvalue *value,
             return(OK);
         case DIO_CURRENT:
             value->rValue = *(ckt->CKTstate0+here->DIOcurrent);
+            if ((here->DIOqpNode > 0) && (here->DIOtTransitTime!=0))
+                value->rValue += here->DIOqpGain * *(ckt->CKTstate0 + here->DIOcqcsr);
             return(OK);
         case DIO_CAP: 
             value->rValue = here->DIOcap;
