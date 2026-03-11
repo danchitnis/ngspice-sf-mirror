@@ -78,6 +78,8 @@ DIOask (CKTcircuit *ckt, GENinstance *inst, int which, IFvalue *value,
             return(OK);
         case DIO_CAP: 
             value->rValue = here->DIOcap;
+            if ((here->DIOqpNode > 0) && (here->DIOtTransitTime!=0))
+                value->rValue += here->DIOtTransitTime * *(ckt->CKTstate0+here->DIOconduct);
             return(OK);
         case DIO_CHARGE: 
             value->rValue = *(ckt->CKTstate0+here->DIOcapCharge);

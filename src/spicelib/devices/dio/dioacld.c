@@ -91,6 +91,20 @@ DIOacLoad(GENmodel *inModel, CKTcircuit *ckt)
                     (*(here->DIOnegTempPtr)        += -dIdioSw_dT);
                 }
             }
+            if ((here->DIOqpNode > 0) && (model->DIOsoftRevRecParam!=0) && (here->DIOtTransitTime!=0)) {
+                double gdres = *(ckt->CKTstate0 + here->DIOresConduct);
+                /* QP subcircuit */
+                double fac = here->DIOtTransitTime / model->DIOsoftRevRecParam;
+                double dcrrdvd = fac*gdres;
+                *(here->DIOqpQpPtr)       += 1/model->DIOsoftRevRecParam;
+                *(here->DIOqpQpPtr + 1)   += here->DIOtTransitTime * ckt->CKTomega;
+                *(here->DIOqpPosPrimePtr) += -dcrrdvd;
+                *(here->DIOqpNegPtr)      +=  dcrrdvd;
+                /* Gain of VCVS (1-vp)/tau * j*omega*tau = (1-vp) * j*omega */
+                double xgain = (1 - model->DIOsoftRevRecParam) * ckt->CKTomega;
+                *(here->DIOposPrimeQpPtr + 1) +=  xgain;
+                *(here->DIOnegQpPtr + 1)      += -xgain;
+            }
         }
     }
     return(OK);

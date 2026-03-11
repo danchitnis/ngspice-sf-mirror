@@ -44,6 +44,7 @@ typedef struct sDIOinstance {
     const int DIOtempNode;    /* number of the temperature node of the diode */
     int DIOposPrimeNode;      /* number of positive prime node of diode */
     int DIOposSwPrimeNode;    /* number of positive prime node of diode sidewall */
+    int DIOqpNode;            /* number of soft recovery charge node */
 
     double *DIOposPosPrimePtr;      /* pointer to sparse matrix at
                                      * (positive,positive prime) */
@@ -82,6 +83,13 @@ typedef struct sDIOinstance {
     /* separate sidewall */
     double *DIOtempPosSwPrimePtr;
     double *DIOposSwPrimeTempPtr;
+
+    /* rev-rec */
+    double *DIOqpQpPtr;
+    double *DIOqpPosPrimePtr;
+    double *DIOqpNegPtr;
+    double *DIOposPrimeQpPtr;
+    double *DIOnegQpPtr;
 
     double DIOcap;   /* stores the diode capacitance */
     double DIOcapSW; /* stores the diode Sw capacitance */
@@ -229,13 +237,19 @@ typedef struct sDIOinstance {
     /* self heating */
     BindElement *DIOtempPosBinding;
     BindElement *DIOtempPosPrimeBinding;
-    BindElement *DIOtempNegBinding; 
+    BindElement *DIOtempNegBinding;
     BindElement *DIOtempTempBinding;
     BindElement *DIOposTempBinding;
     BindElement *DIOposPrimeTempBinding;
     BindElement *DIOnegTempBinding;
     BindElement *DIOtempPosSwPrimeBinding;
     BindElement *DIOposSwPrimeTempBinding;
+    /* rev-rec */
+    BindElement *DIOqpQpBinding;
+    BindElement *DIOqpPosPrimeBinding;
+    BindElement *DIOqpNegBinding;
+    BindElement *DIOposPrimeQpBinding;
+    BindElement *DIOnegQpBinding;
 #endif
 
 } DIOinstance ;
@@ -243,7 +257,6 @@ typedef struct sDIOinstance {
 #define DIOsenGeq DIOsens /* stores the perturbed values of geq */
 #define DIOsenCeq DIOsens + 3 /* stores the perturbed values of ceq */
 #define DIOdphidp DIOsens + 6
-
 
 #define DIOvoltage DIOstate
 #define DIOcurrent DIOstate+1
@@ -256,18 +269,25 @@ typedef struct sDIOinstance {
 #define DIOcapChargeSW DIOstate+8
 #define DIOcapCurrentSW DIOstate+9
 
-#define DIOqth DIOstate+10      /* thermal capacitor charge */
-#define DIOcqth DIOstate+11    /* thermal capacitor current */
-
-#define DIOdeltemp DIOstate+12 /* thermal voltage over rth0 */
+#define DIOqth DIOstate+10       /* thermal capacitor charge */
+#define DIOcqth DIOstate+11      /* thermal capacitor current */
+#define DIOdeltemp DIOstate+12   /* thermal voltage over rth0 */
 #define DIOdIdio_dT DIOstate+13
 #define DIOdIdioSW_dT DIOstate+14
+/* rev-rec */
+#define DIOsrcapCharge DIOstate+15
+#define DIOsrcapCurrent DIOstate+16
+#define DIOqp DIOstate+17
+#define DIOresCurrent DIOstate+18
+#define DIOresConduct DIOstate+19
+#define DIOcqcsr DIOstate+20
+#define DIOgqcsr DIOstate+21
 
-#define DIOnumStates 15
+#define DIOnumStates 22
 
-#define DIOsensxp DIOstate+15    /* charge sensitivities and their derivatives.
-                                 * +16 for the derivatives - pointer to the
-                                 * beginning of the array */
+#define DIOsensxp DIOstate+21    /* charge sensitivities and their derivatives.
+                                  * +22 for the derivatives - pointer to the
+                                  * beginning of the array */
 
 #define DIOnumSenStates 2
 
@@ -342,6 +362,7 @@ typedef struct sDIOmodel {       /* model structure for a diode */
     unsigned DIOte_maxGiven : 1;
     unsigned DIOrecSatCurGiven : 1;
     unsigned DIOrecEmissionCoeffGiven : 1;
+    unsigned DIOsoftRevRecParamGiven : 1;
 
     unsigned DIOrth0Given :1;
     unsigned DIOcth0Given :1;
@@ -418,6 +439,7 @@ typedef struct sDIOmodel {       /* model structure for a diode */
     double DIOte_max; /* maximum temperature */
     double DIOrecSatCur; /* Recombination saturation current */
     double DIOrecEmissionCoeff; /* Recombination emission coefficient */
+    double DIOsoftRevRecParam; /* Soft reverse recovery parameter */
 
     double DIOrth0;
     double DIOcth0;
@@ -526,6 +548,7 @@ enum {
     DIO_MOD_PD_MAX,
     DIO_MOD_ISR,
     DIO_MOD_NR,
+    DIO_MOD_VP,
     DIO_MOD_RTH0,
     DIO_MOD_CTH0,
 
