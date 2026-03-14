@@ -1,7 +1,7 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Thomas L. Quarles
-Modified by Paolo Nenzi 2003 and Dietmar Warning 2012
+Modified by Paolo Nenzi 2003, Dietmar Warning 2012 and Arpad Buermen 2025
 **********/
 
 #include "ngspice/ngspice.h"
@@ -122,6 +122,7 @@ IFparm DIOmPTable[] = { /* model parameters */
  OPU( "cond", DIO_MOD_COND,IF_REAL, "Ohmic conductance"),
  IOP( "isr",  DIO_MOD_ISR,  IF_REAL, "Recombination saturation current"),
  IOP( "nr",   DIO_MOD_NR,   IF_REAL, "Recombination current emission coefficient"),
+ IOP( "vp",   DIO_MOD_VP,   IF_REAL, "Soft reverse recovery parameter"),
 
  /* SOA parameters */
  IOPX( "fv_max",   DIO_MOD_FV_MAX,  IF_REAL, "maximum voltage in forward direction"),
