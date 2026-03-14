@@ -26,7 +26,6 @@ DIOload(GENmodel *inModel, CKTcircuit *ckt)
     double argsw;
     double capd, capdsw=0.0;
     double cd, cdb, cdsw, cdb_dT, cdsw_dT;
-    double cdres, gdres;
     double cdeq;
     double cdhat, cdhatsw=0.0;
     double ceq;
@@ -44,7 +43,6 @@ DIOload(GENmodel *inModel, CKTcircuit *ckt)
     double evd;
     double evrev;
     double gd, gdb, gdsw, gen_fac, gen_fac_vd;
-    double capsr, gqcsr, cqcsr;
     double t1, evd_rec, cdb_rec, gdb_rec, cdb_rec_dT;
     double geq;
     double gspr;    /* area-scaled conductance */
@@ -54,7 +52,6 @@ DIOload(GENmodel *inModel, CKTcircuit *ckt)
     double tol;     /* temporary for tolerence calculations */
 #endif
     double vd, vdsw=0.0; /* current diode voltage */
-    double vqp;
     double vdtemp;
     double vt;      /* K t / Q */
     double vte, vtesw, vtetun, vtebrk, vterec;
@@ -68,6 +65,10 @@ DIOload(GENmodel *inModel, CKTcircuit *ckt)
     double dIdio_dT, dIth_dVdio=0.0, dIrs_dT=0.0, dIth_dVrs=0.0, dIth_dT=0.0;
     double dIdioSw_dT=0.0, dIth_dVdioSw=0.0, dIth_dVrssw=0.0, dIrssw_dT=0.0;
     double argsw_dT, csat_dT, csatsw_dT;
+    /* rev-rec */
+    double cdres;
+    double vqp;
+    double capsr, gqcsr, cqcsr;
 
     /*  loop through all the diode models */
     for( ; model != NULL; model = DIOnextModel(model)) {
@@ -262,8 +263,6 @@ DIOload(GENmodel *inModel, CKTcircuit *ckt)
                                             dIdioSw_dT= *(ckt->CKTstate0 + here->DIOdIdioSW_dT);
                                         }
                                         vqp= *(ckt->CKTstate0 + here->DIOqp);
-                                        cdres= *(ckt->CKTstate0 + here->DIOresCurrent);
-                                        gdres= *(ckt->CKTstate0 + here->DIOresConduct);
                                         cqcsr= *(ckt->CKTstate0 + here->DIOcqcsr);
                                         gqcsr= *(ckt->CKTstate0 + here->DIOgqcsr);
                                         goto load;
@@ -521,7 +520,7 @@ next1:
             }
 
             cdres = cd;
-            gdres = gd;
+            here->DIOgdres = gd;
             cqcsr = 0;
             gqcsr = 0;
 
@@ -573,7 +572,6 @@ next1:
                     /*
                       DIOcap is now equal only to depletion capacitance + overlap capacitance.
                       Diffusion capacitance is modelled via Qp so there is no clear way to define it.
-                      Situation is similar to the one when we have an NQS model for the charge.
                     */
 
                     /* Now prepare the charge for the capacitor connected to the QP node */
@@ -621,8 +619,6 @@ next1:
                                 *(ckt->CKTstate0 + here->DIOconductSW) = gdsw;
                                 *(ckt->CKTstate0 + here->DIOdIdioSW_dT) = dIdioSw_dT;
                             }
-                            *(ckt->CKTstate0 + here->DIOresCurrent) = cdres;
-                            *(ckt->CKTstate0 + here->DIOresConduct) = gdres;
                             *(ckt->CKTstate0 + here->DIOcqcsr) = cqcsr;
                             *(ckt->CKTstate0 + here->DIOgqcsr) = gqcsr;
 #ifdef SENSDEBUG
@@ -641,7 +637,6 @@ next1:
                         *(ckt->CKTstate0 + here->DIOcurrent) = cd;
                         if (model->DIOresistSWGiven)
                             *(ckt->CKTstate0 + here->DIOcurrentSW) = cdsw;
-                        *(ckt->CKTstate0 + here->DIOresCurrent) = cdres;
 #ifdef SENSDEBUG
                         printf("storing parameters for transient sensitivity\n"
                                 );
@@ -732,8 +727,6 @@ next2:      *(ckt->CKTstate0 + here->DIOvoltage) = vd;
                 *(ckt->CKTstate0 + here->DIOdIdioSW_dT) = dIdioSw_dT;
             }
             *(ckt->CKTstate0 + here->DIOqp) = vqp;
-            *(ckt->CKTstate0 + here->DIOresCurrent) = cdres;
-            *(ckt->CKTstate0 + here->DIOresConduct) = gdres;
             *(ckt->CKTstate0 + here->DIOcqcsr) = cqcsr;
             *(ckt->CKTstate0 + here->DIOgqcsr) = gqcsr;
             if(SenCond)  continue;
@@ -842,7 +835,7 @@ next2:      *(ckt->CKTstate0 + here->DIOvoltage) = vd;
                 double ceqrrd, geqrrd;
                 /* QP subcircuit */
                 fac = here->DIOtTransitTime / model->DIOsoftRevRecParam;
-                dcrrdvd = fac*gdres;
+                dcrrdvd = fac*here->DIOgdres;
                 ceqrr = -fac*cdres + cqcsr + dcrrdvd*vd - gqcsr*vqp;
                 grr = 1/model->DIOsoftRevRecParam;
                 *(ckt->CKTrhs + here->DIOqpNode) -= ceqrr;

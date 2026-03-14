@@ -92,10 +92,9 @@ DIOacLoad(GENmodel *inModel, CKTcircuit *ckt)
                 }
             }
             if ((here->DIOqpNode > 0) && (model->DIOsoftRevRecParam!=0) && (here->DIOtTransitTime!=0)) {
-                double gdres = *(ckt->CKTstate0 + here->DIOresConduct);
                 /* QP subcircuit */
                 double fac = here->DIOtTransitTime / model->DIOsoftRevRecParam;
-                double dcrrdvd = fac*gdres;
+                double dcrrdvd = fac * here->DIOgdres;
                 *(here->DIOqpQpPtr)       += 1/model->DIOsoftRevRecParam;
                 *(here->DIOqpQpPtr + 1)   += here->DIOtTransitTime * ckt->CKTomega;
                 *(here->DIOqpPosPrimePtr) += -dcrrdvd;

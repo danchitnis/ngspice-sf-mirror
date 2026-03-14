@@ -94,7 +94,9 @@ typedef struct sDIOinstance {
     double DIOcap;   /* stores the diode capacitance */
     double DIOcapSW; /* stores the diode Sw capacitance */
 
+    /* rev-rec */
     double DIOqpGain;/* converts iterated diffcharge current */
+    double DIOgdres; /* dc part of diode conductance for soft recovery model */
 
     double *DIOsens; /* stores the perturbed values of geq and ceq in ac
                          sensitivity analyis */
@@ -280,15 +282,13 @@ typedef struct sDIOinstance {
 #define DIOsrcapCharge DIOstate+15
 #define DIOsrcapCurrent DIOstate+16
 #define DIOqp DIOstate+17
-#define DIOresCurrent DIOstate+18
-#define DIOresConduct DIOstate+19
-#define DIOcqcsr DIOstate+20
-#define DIOgqcsr DIOstate+21
+#define DIOcqcsr DIOstate+18
+#define DIOgqcsr DIOstate+19
 
-#define DIOnumStates 22
+#define DIOnumStates 20
 
-#define DIOsensxp DIOstate+21    /* charge sensitivities and their derivatives.
-                                  * +22 for the derivatives - pointer to the
+#define DIOsensxp DIOstate+20    /* charge sensitivities and their derivatives.
+                                  * +21 for the derivatives - pointer to the
                                   * beginning of the array */
 
 #define DIOnumSenStates 2
