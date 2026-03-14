@@ -2,7 +2,7 @@
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Thomas L. Quarles
 Modified: 2000 AlansFixes
-Modified by Paolo Nenzi 2003 and Dietmar Warning 2012
+Modified by Paolo Nenzi 2003, Dietmar Warning 2012 and Arpad Buermen 2025
 **********/
 
 /* load the diode structure with those pointers needed later
@@ -222,6 +222,9 @@ DIOsetup(SMPmatrix *matrix, GENmodel *inModel, CKTcircuit *ckt, int *states)
         if(!model->DIOrecSatCurGiven) {
             model->DIOrecSatCur = 1e-14;
         }
+        if (!model->DIOsoftRevRecParamGiven) {
+            model->DIOsoftRevRecParam = 0.0;
+        }
 
         /* set lower limit of saturation current */
         if (model->DIOsatCur < ckt->CKTepsmin)
@@ -412,6 +415,18 @@ DIOsetup(SMPmatrix *matrix, GENmodel *inModel, CKTcircuit *ckt, int *states)
                 }
             }
 
+            /* rev-rec */
+            if (model->DIOsoftRevRecParamGiven && model->DIOsoftRevRecParam!=0 && model->DIOtransitTime!=0) {
+                if(here->DIOqpNode == 0) {
+                    error = CKTmkVolt(ckt, &tmp, here->DIOname, "qp");
+                    if(error) return(error);
+                    here->DIOqpNode = tmp->number;
+                }
+            } else {
+                here->DIOqpNode = 0;
+            }
+
+
             int selfheat = ((here->DIOtempNode > 0) && (here->DIOthermal) && (model->DIOrth0Given));
 
 /* macro to make elements with built in test for out of memory */
@@ -450,7 +465,15 @@ do { if((here->ptr = SMPmakeElt(matrix, here->first, here->second)) == NULL){\
                     TSTALLOC(DIOposSwPrimeTempPtr, DIOposSwPrimeNode, DIOtempNode);
                 }
             }
-
+            
+            /* rev-rec */
+            if (model->DIOsoftRevRecParamGiven && model->DIOsoftRevRecParam!=0 && model->DIOtransitTime!=0) {
+                TSTALLOC(DIOqpQpPtr      , DIOqpNode, DIOqpNode);
+                TSTALLOC(DIOqpPosPrimePtr, DIOqpNode, DIOposPrimeNode);
+                TSTALLOC(DIOqpNegPtr     , DIOqpNode, DIOnegNode);
+                TSTALLOC(DIOposPrimeQpPtr, DIOposPrimeNode, DIOqpNode);
+                TSTALLOC(DIOnegQpPtr,      DIOnegNode, DIOqpNode);
+            }
         }
     }
     return(OK);
@@ -474,7 +497,7 @@ DIOunsetup(
             if (here->DIOposPrimeNode > 0
               && here->DIOposPrimeNode != here->DIOposNode)
                 CKTdltNNum(ckt, here->DIOposPrimeNode);
-            here->DIOposPrimeNode = 0;
+                here->DIOposPrimeNode = 0;
 
             if(model->DIOresistSWGiven) {
                 /* separate sidewall */
@@ -483,6 +506,11 @@ DIOunsetup(
                     CKTdltNNum(ckt, here->DIOposSwPrimeNode);
                 here->DIOposSwPrimeNode = 0;
             }
+
+            /* rev-rec */
+            if (here->DIOqpNode > 0)
+                CKTdltNNum(ckt, here->DIOqpNode);
+                here->DIOqpNode = 0;
 
         }
     }

@@ -1,7 +1,7 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Thomas L. Quarles
-Modified by Paolo Nenzi 2003 and Dietmar Warning 2012
+Modified by Paolo Nenzi 2003, Dietmar Warning 2012 and Arpad Buermen 2025
 **********/
 /*
  */
@@ -198,6 +198,9 @@ DIOmAsk (CKTcircuit *ckt, GENmodel *inModel, int which, IFvalue *value)
             return(OK);
         case DIO_MOD_NR:
             value->rValue = model->DIOrecEmissionCoeff;
+            return(OK);
+        case DIO_MOD_VP:
+            value->rValue = model->DIOsoftRevRecParam;
             return(OK);
         case DIO_MOD_RTH0:
             value->rValue = model->DIOrth0; 
