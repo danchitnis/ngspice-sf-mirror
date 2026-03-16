@@ -7,7 +7,6 @@
 #define ngspice_LINEAR_H
 
 void com_linearize(wordlist *wl);
-void com_linearnp(wordlist *wl);
 void com_cutout(wordlist *wl);
 
 
