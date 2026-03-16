@@ -28,7 +28,9 @@ com_linearize(wordlist *wl)
     struct dvec *newtime, *v;
     struct dvec *oldtime;
     struct dvec *lin;
-    int len, i;
+    int expo, len = 1024, i;
+    bool nponly = FALSE, np = FALSE;
+    wordlist * wlnew;
 
     if (!plot_cur || !plot_cur->pl_typename || !ciprefix("tran", plot_cur->pl_typename)) {
         fprintf(cp_err, "Error: plot must be a transient analysis\n");
@@ -98,7 +100,34 @@ com_linearize(wordlist *wl)
     plot_new(new);
     plot_setcur(new->pl_typename);
     plot_list = new;
-    len = (int)((tstop - tstart) / tstep + 1.5);
+
+    /* check if "np=" is the only entry in wl.
+-       If yes, linearize all vectors */
+    if (wl && ciprefix("np=", wl->wl_word) && wl->wl_next == NULL) {
+        nponly = TRUE;
+    }
+
+    wlnew = wl;
+    /* get the new length from 'np=xx' */
+    while (wlnew) {
+        char* para = wlnew->wl_word;
+        if (ciprefix("np=", para)) {
+            np = TRUE;
+            para += 3;
+            len = atoi(para);
+            if (len == 0 && ciprefix("auto2n", para)) {
+                /* number of points as 2^n */
+                expo = (int)round(log2((tstop - tstart) / tstep));
+                len = 1 << expo;
+            }
+            break;
+        }
+        wlnew = wlnew->wl_next;
+    }
+
+    if(!np)
+        len = (int)((tstop - tstart) / tstep + 1.5);
+
     newtime = dvec_alloc(copy(oldtime->v_name),
                          oldtime->v_type,
                          oldtime->v_flags | VF_PERMANENT,
@@ -109,12 +138,17 @@ com_linearize(wordlist *wl)
         newtime->v_realdata[i] = d;
     new->pl_scale = new->pl_dvecs = newtime;
 
-    if (wl) {
+    if (wl && !nponly) {
+        /* check for vectors given in the command line */
         while (wl) {
+            if (ciprefix("np=", wl->wl_word)) {
+                wl = wl->wl_next;
+                continue;
+            }
             v = vec_fromplot(wl->wl_word, old);
             if (!v) {
-                fprintf(cp_err, "Error: no such vector %s\n",
-                        wl->wl_word);
+                fprintf(cp_err, "Error: command 'linearize': no such vector %s\n",
+                    wl->wl_word);
                 wl = wl->wl_next;
                 continue;
             }
@@ -122,6 +156,7 @@ com_linearize(wordlist *wl)
             wl = wl->wl_next;
         }
     } else {
+        /* linearize all vectors of the current plot */
         for (v = old->pl_dvecs; v; v = v->v_next) {
             if (v == old->pl_scale)
                 continue;
