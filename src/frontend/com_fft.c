@@ -58,6 +58,13 @@ com_fft(wordlist *wl)
     }
 
     length = (plot_cur->pl_scale)->v_length;
+
+    /* in case of tran error */
+    if (length < 2) {
+        fprintf(cp_err, "Error: fft needs more than one time point, check the tran simulation!\n");
+        goto done;
+    }
+
     time = (plot_cur->pl_scale)->v_realdata;
     span = time[length-1] - time[0] + time[length-1] - time[length-2];
 
