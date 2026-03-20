@@ -59,10 +59,11 @@ com_fft(wordlist *wl)
 
     length = (plot_cur->pl_scale)->v_length;
     time = (plot_cur->pl_scale)->v_realdata;
-    span = time[length-1] - time[0];
+    span = time[length-1] - time[0] + time[length-1] - time[length-2];
 
 #ifdef HAVE_LIBFFTW3
     fpts = length/2 + 1;
+    scale = ((double)length)/2.0;
 #else
     /* size of fft input vector is power of two and larger or equal than spice vector */
     N = 1;
@@ -72,6 +73,7 @@ com_fft(wordlist *wl)
         M++;
     }
     fpts = N/2 + 1;
+    scale = ((double)N)/2;
 #endif
 
     win = TMALLOC(double, length);
@@ -178,7 +180,6 @@ com_fft(wordlist *wl)
 
         fftw_execute(plan_forward);
 
-        scale = (double) fpts - 1.0;
         fdvec[i][0].cx_real = out[0][0]/scale/2.0;
         fdvec[i][0].cx_imag = 0.0;
         for (j = 1; j < fpts; j++) {
@@ -215,7 +216,6 @@ com_fft(wordlist *wl)
         rffts(in, M, 1);
         fftFree();
 
-        scale = (double) fpts - 1.0;
         /* Re(x[0]), Re(x[N/2]), Re(x[1]), Im(x[1]), Re(x[2]), Im(x[2]), ... Re(x[N/2-1]), Im(x[N/2-1]). */
         fdvec[i][0].cx_real = in[0]/scale/2.0;
         fdvec[i][0].cx_imag = 0.0;
