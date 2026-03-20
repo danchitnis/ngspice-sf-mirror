@@ -185,7 +185,10 @@ com_fft(wordlist *wl)
             fdvec[i][j].cx_real = out[j][0]/scale;
             fdvec[i][j].cx_imag = out[j][1]/scale;
         }
-
+        if (length % 2 == 0) {
+            fdvec[i][fpts-1].cx_real = out[fpts-1][0]/scale/2.0;
+            fdvec[i][fpts-1].cx_imag = 0.0;
+        }
     }
 
     fftw_destroy_plan(plan_forward);
@@ -220,7 +223,7 @@ com_fft(wordlist *wl)
             fdvec[i][j].cx_real = in[2*j]/scale;
             fdvec[i][j].cx_imag = in[2*j+1]/scale;
         }
-        fdvec[i][fpts-1].cx_real = in[1]/scale;
+        fdvec[i][fpts-1].cx_real = in[1]/scale/2.0;
         fdvec[i][fpts-1].cx_imag = 0.0;
 
         tfree(in);
@@ -416,15 +419,17 @@ com_psd(wordlist *wl)
         fdvec[i][0].cx_real = out[0][0]*out[0][0]/intres;
         fdvec[i][0].cx_imag = 0;
         noipower = fdvec[i][0].cx_real;
-        for (j = 1; j < fpts-1; j++) {
+        for (j = 1; j < fpts; j++) {
             fdvec[i][j].cx_real = 2.* (out[j][0]*out[j][0] + out[j][1]*out[j][1])/intres;
             fdvec[i][j].cx_imag = 0;
             noipower += fdvec[i][j].cx_real;
             if (!finite(noipower))
                 break;
         }
-        fdvec[i][fpts-1].cx_real = out[fpts-1][0]*out[fpts-1][0]/intres;
-        fdvec[i][fpts-1].cx_imag = 0;
+        if (length % 2 == 0) {
+            fdvec[i][fpts-1].cx_real = out[fpts-1][0]*out[fpts-1][0]/intres;
+            fdvec[i][fpts-1].cx_imag = 0;
+        }
         noipower += fdvec[i][fpts-1].cx_real;
 
 #else /* Green's FFT */
