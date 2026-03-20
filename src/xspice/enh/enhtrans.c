@@ -117,15 +117,13 @@ ENHtranslate_poly(
         l1->nextcard = l2;
         d->nextcard  = l1;
 
-        /* PN 2004: Add original linenumber to ease the debug process
-         * for malfromned netlist
-         */
-
+        /* Add original linenumber to ease the debug process
+         * for malformed netlist */
         l1->linenum = d->linenum;
         l2->linenum = d->linenum;
 
-        l1->linesource = copy("internal");
-        l2->linesource = copy("internal");
+        l1->linesource = "internal";
+        l2->linesource = "internal";
 
         /* Create the translated cards */
         d->error = two2three_translate(d->line, &(l1->line), &(l2->line));
