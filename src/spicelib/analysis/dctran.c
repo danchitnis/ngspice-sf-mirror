@@ -969,3 +969,22 @@ chkStep:
     }
     /* NOTREACHED */
 }
+
+
+/* If we have a 'step' command, and then 'quit' before reaching the final time,
+   remove the run plot memory. */
+int
+DCtran_step_quit(CKTcircuit* ckt) {
+    if (!ckt || !ckt->CKTcurJob) /* nothing to delete */
+        return 0;
+    if (ckt->CKTcurJob->JOBtype != 4) /* only tran sim */
+        return 0;
+    if (!ft_stepcheck()) /* only after 'step' */
+        return 0;
+    TRANan* job = (TRANan*)ckt->CKTcurJob;
+    if (!job->TRANplot) /* already done */
+        return 0;
+    SPfrontEnd->OUTendPlot(job->TRANplot);
+    job->TRANplot = NULL;
+    return(OK);
+}

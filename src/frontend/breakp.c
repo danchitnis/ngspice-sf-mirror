@@ -517,7 +517,7 @@ ft_bpcheck(struct plot *runplot, int iteration)
 
     if ((howmanysteps > 0) && (--howmanysteps == 0)) {
         if (steps > 1)
-            fprintf(cp_err, "Stopped after %d steps.\n", steps);
+            fprintf(cp_out, "Note: Stopped after %d steps.\n", steps);
         return (FALSE);
     }
 
@@ -693,4 +693,15 @@ printcond(struct dbcomm *d, FILE *fp)
                 fprintf(fp, " %g", dt->db_value2);
         }
     }
+}
+
+
+/* just check if we are in 'step' mode */
+bool
+ft_stepcheck(void)
+{
+    if ((steps > 0) && (howmanysteps == 0)) {
+        return (TRUE);
+    }
+    return (FALSE);
 }

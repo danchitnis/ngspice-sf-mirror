@@ -26,9 +26,10 @@ Modified: 1999 Paolo Nenzi - 2000 AlansFixes
 
 extern void ft_checkkids(void);
 
-/* breakpoint.c */
+/* breakp.c */
 
 extern bool ft_bpcheck(struct plot *runplot, int iteration);
+extern bool ft_stepcheck(void);
 extern void dbfree(struct dbcomm *db);
 extern void dbfree1(struct dbcomm *db);
 
@@ -173,29 +174,6 @@ extern struct dvec *ft_evaluate(struct pnode *node);
 /* ftesopt.c */
 extern struct variable *ft_getstat(struct circ *, char *);
 
-/* ginterface.c
-
-   extern bool gi_init();
-   extern bool gi_endpause;
-   extern bool gi_rottext;
-   extern int gi_fntheight;
-   extern int gi_fntwidth;
-   extern int gi_maxx;
-   extern int gi_maxy;
-   extern int gi_nolst;
-   extern int gi_nocolors;
-   extern int gi_package;
-   extern void gi_arc();
-   extern void gi_clearscreen();
-   extern void gi_close();
-   extern void gi_drawline();
-   extern void gi_redraw();
-   extern void gi_setcolor();
-   extern void gi_resetcolor();
-   extern void gi_setlinestyle();
-   extern void gi_text();
-   extern void gi_update();
-*/
 
 /* graf.c */
 
@@ -385,6 +363,5 @@ extern struct dvec* copycut(struct dvec* ov, struct dvec* newscalevec, int istar
 extern bool ft_intrpt;
 extern bool ft_setflag;
 
-/* error.c */
 
 #endif
