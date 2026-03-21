@@ -35,6 +35,7 @@ Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
 extern void line_free_x(struct card *deck, bool recurse);
 extern INPmodel *modtab;
 extern NGHASHPTR modtabhash;
+extern int DCtran_step_quit(CKTcircuit* ckt);
 
 #ifdef SHARED_MODULE
 extern void exec_controls(wordlist *newcontrols);
@@ -218,6 +219,10 @@ com_remcirc(wordlist *wl)
     if (ft_curckt->ci_ckt)
         EVTunsetup(ft_curckt->ci_ckt);
 #endif
+
+    /* remove remnants of run after incomplete transient sim with 'step' */
+    if (ft_curckt->ci_ckt)
+        DCtran_step_quit(ft_curckt->ci_ckt);
 
     if_cktfree(ft_curckt->ci_ckt, ft_curckt->ci_symtab);
     for (v = ft_curckt->ci_vars; v; v = next) {
