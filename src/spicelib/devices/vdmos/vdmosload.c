@@ -767,7 +767,7 @@ bypass:
 #endif /* PREDICTOR */
                     vd = model->VDMOStype * (*(ckt->CKTrhsOld + here->VDIOposPrimeNode) -
                                              *(ckt->CKTrhsOld + here->VDMOSdNode));
-                    vqp = *(ckt->CKTrhsOld+here->VDIOqpNode);
+                    vqp = model->VDMOStype * *(ckt->CKTrhsOld+here->VDIOqpNode);
 #ifndef PREDICTOR
                 }
 #endif /* PREDICTOR */
@@ -1031,7 +1031,7 @@ load:
                 double dcrrdvd = fac*gdres;
                 double ceqrr = -fac*cdres + cqcsr + dcrrdvd*vd - gqcsr*vqp;
                 double grr = 1/model->VDIOsoftRevRecParam;
-                *(ckt->CKTrhs + here->VDIOqpNode) -= ceqrr;
+                *(ckt->CKTrhs + here->VDIOqpNode) -= model->VDMOStype * ceqrr;
                 *(here->VDIOqpQpPtr)       += grr + gqcsr;
                 *(here->VDIOqpPosPrimePtr) += -dcrrdvd;
                 *(here->VDIOqpNegPtr)      +=  dcrrdvd;

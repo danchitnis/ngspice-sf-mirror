@@ -124,7 +124,7 @@ VDMOSask(CKTcircuit *ckt, GENinstance *inst, int which, IFvalue *value,
         case VDMOS_QDIO:
             value->rValue = *(ckt->CKTstate0+here->VDIOcapCharge);
             if ((here->VDIOqpNode > 0) && (here->VDIOtTransitTime!=0))
-                value->rValue += *(ckt->CKTstate0 + here->VDIOsrcapCharge);
+                value->rValue += here->VDIOqpGain * *(ckt->CKTstate0 + here->VDIOsrcapCharge);
             return(OK);
         case VDMOS_CG :
             if (ckt->CKTcurrentAnalysis & DOING_AC) {
