@@ -8429,9 +8429,6 @@ static void inp_quote_params(struct card *c, struct card *end_c,
     if (ft_skywaterpdk)
         return;
 
-    if (newcompat.hs)
-        return;
-
     for (; c && c != end_c; c = c->nextcard) {
 
         int i, j, num_terminals;
