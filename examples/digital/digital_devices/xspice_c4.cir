@@ -13,7 +13,7 @@ Mixed IO types with conversion of Pspice nand and divider.
 .tran 1e-5 1e-3 
 .save all
 * 
-v1 1 0 0.0 pulse(0 1 1e-4 1e-6) 
+v1 1 0 0.0 pulse(0 1 1e-4 1e-6 1e-6 1e-4 2e-4)
 r1 1 0 1k 
 * 
 abridge1 [1] [enable] atod 

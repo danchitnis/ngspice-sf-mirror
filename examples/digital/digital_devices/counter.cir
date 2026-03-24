@@ -14,7 +14,7 @@ U4 JKFF(1) $G_DPWR $G_DGND  HIGH CLEAR QC HIGH HIGH QD 11
 
 *** input sources ***
 vclk 100 0 pulse( 0.0 1.0 50ns 0ns 0ns 50ns 100ns )
-vreset 200 0  pulse( 1.0 0.0 10ns 0ns 0ns 50ns ) 
+vreset 200 0 pulse( 1.0 0.0 10ns 0ns 0ns 50ns 100ns 1 )
 vhigh 300 0 DC 1.0
 
 *** adc_bridge blocks ***
