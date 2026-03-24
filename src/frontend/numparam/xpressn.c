@@ -229,14 +229,15 @@ message(dico_t *dico, const char *fmt, ...)
         if (ft_ngdebug) {
             fprintf
             (stderr,
-                "Netlist line no. %d, new internal line no. %d:\n",
-                dico->oldline, dico->srcline);
+                "Error in netlist line no. %d, new internal line no. %d:\n"
+                "%s\n\n",
+                dico->srcline, dico->oldline, dico->cardline);
         }
         else {
             fprintf
             (stderr,
-                "Netlist line no. %d:\n",
-                dico->oldline);
+                "Error in netlist line no. %d, new internal line no. %d:\n\n",
+                dico->srcline, dico->oldline);
         }
     }
     va_start(ap, fmt);
@@ -273,6 +274,7 @@ initdico(dico_t *dico)
         dico->hs_compatibility = 1;
     else
         dico->hs_compatibility = 0;
+    dico->cardline = NULL;
 }
 
 
@@ -1053,11 +1055,18 @@ formula(dico_t *dico, const char *s, const char *s_end, bool *perror)
             ((oldstate == S_atom) && (state == S_binop)) ||
             ((oldstate != S_atom) && (state != S_binop));
 
-        if (oldstate == S_binop && state == S_binop && c == '-') {
-            ok = 1;
-            negate = 1;
-            continue;
-        }
+        /* c is a sign, + or - are allowed */
+        if (oldstate == S_binop && state == S_binop)
+            if (c == '-') {
+                ok = 1;
+                negate = 1;
+                continue;
+            }
+            else if (c == '+') {
+                ok = 1;
+                negate = 0;
+                continue;
+            }
 
         if (!ok)
             error = message(dico, " Misplaced operator\n");

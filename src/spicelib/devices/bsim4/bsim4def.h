@@ -121,6 +121,7 @@ typedef struct sBSIM4instance
     int BSIM4wnflag;
     double BSIM4xgw;
     double BSIM4ngcon;
+    double BSIM4dtemp;
 
     /* added here to account stress effect instance dependence */
 
@@ -316,6 +317,7 @@ typedef struct sBSIM4instance
     unsigned BSIM4wnflagGiven   :1;
     unsigned BSIM4xgwGiven   :1;
     unsigned BSIM4ngconGiven   :1;
+    unsigned BSIM4dtempGiven : 1;
     unsigned BSIM4icVDSGiven :1;
     unsigned BSIM4icVGSGiven :1;
     unsigned BSIM4icVBSGiven :1;
@@ -2883,6 +2885,8 @@ typedef struct sBSIM4model
 #define BSIM4_CGBO                45
 #define BSIM4_WEFF                46
 #define BSIM4_LEFF                47
+
+#define BSIM4_DTEMP               48
 
 /* Global parameters */
 #define BSIM4_MOD_TEMPEOT         66

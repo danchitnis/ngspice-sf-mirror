@@ -1,7 +1,7 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Thomas L. Quarles
-Modified by Paolo Nenzi 2003 and Dietmar Warning 2012
+Modified by Paolo Nenzi 2003, Dietmar Warning 2012 and Arpad Buermen 2025
 **********/
 /*
  */
@@ -244,6 +244,10 @@ DIOmParam(int param, IFvalue *value, GENmodel *inModel)
         case DIO_MOD_NR:
             model->DIOrecEmissionCoeff = value->rValue;
             model->DIOrecEmissionCoeffGiven = TRUE;
+            break;
+        case DIO_MOD_VP:
+            model->DIOsoftRevRecParam = value->rValue;
+            model->DIOsoftRevRecParamGiven = TRUE;
             break;
         case  DIO_MOD_RTH0:
             model->DIOrth0 = value->rValue;

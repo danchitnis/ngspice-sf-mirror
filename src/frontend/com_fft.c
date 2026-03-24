@@ -58,11 +58,19 @@ com_fft(wordlist *wl)
     }
 
     length = (plot_cur->pl_scale)->v_length;
+
+    /* in case of tran error */
+    if (length < 2) {
+        fprintf(cp_err, "Error: fft needs more than one time point, check the tran simulation!\n");
+        goto done;
+    }
+
     time = (plot_cur->pl_scale)->v_realdata;
-    span = time[length-1] - time[0];
+    span = time[length-1] - time[0] + time[length-1] - time[length-2];
 
 #ifdef HAVE_LIBFFTW3
     fpts = length/2 + 1;
+    scale = ((double)length)/2.0;
 #else
     /* size of fft input vector is power of two and larger or equal than spice vector */
     N = 1;
@@ -72,6 +80,7 @@ com_fft(wordlist *wl)
         M++;
     }
     fpts = N/2 + 1;
+    scale = ((double)N)/2;
 #endif
 
     win = TMALLOC(double, length);
@@ -84,7 +93,7 @@ com_fft(wordlist *wl)
         order = 2;
 
     if (fft_windows(window, win, time, length, maxt, span, order) == 0)
-        goto done;
+        fprintf(cp_err, "Warning: unknown window type %s for fft, set to \"none\" \n", window);
 
     names = ft_getpnames_quotes(wl, TRUE);
     vlist = NULL;
@@ -178,14 +187,16 @@ com_fft(wordlist *wl)
 
         fftw_execute(plan_forward);
 
-        scale = (double) fpts - 1.0;
         fdvec[i][0].cx_real = out[0][0]/scale/2.0;
         fdvec[i][0].cx_imag = 0.0;
         for (j = 1; j < fpts; j++) {
             fdvec[i][j].cx_real = out[j][0]/scale;
             fdvec[i][j].cx_imag = out[j][1]/scale;
         }
-
+        if (length % 2 == 0) {
+            fdvec[i][fpts-1].cx_real = out[fpts-1][0]/scale/2.0;
+            fdvec[i][fpts-1].cx_imag = 0.0;
+        }
     }
 
     fftw_destroy_plan(plan_forward);
@@ -212,7 +223,6 @@ com_fft(wordlist *wl)
         rffts(in, M, 1);
         fftFree();
 
-        scale = (double) fpts - 1.0;
         /* Re(x[0]), Re(x[N/2]), Re(x[1]), Im(x[1]), Re(x[2]), Im(x[2]), ... Re(x[N/2-1]), Im(x[N/2-1]). */
         fdvec[i][0].cx_real = in[0]/scale/2.0;
         fdvec[i][0].cx_imag = 0.0;
@@ -220,7 +230,7 @@ com_fft(wordlist *wl)
             fdvec[i][j].cx_real = in[2*j]/scale;
             fdvec[i][j].cx_imag = in[2*j+1]/scale;
         }
-        fdvec[i][fpts-1].cx_real = in[1]/scale;
+        fdvec[i][fpts-1].cx_real = in[1]/scale/2.0;
         fdvec[i][fpts-1].cx_imag = 0.0;
 
         tfree(in);
@@ -416,15 +426,17 @@ com_psd(wordlist *wl)
         fdvec[i][0].cx_real = out[0][0]*out[0][0]/intres;
         fdvec[i][0].cx_imag = 0;
         noipower = fdvec[i][0].cx_real;
-        for (j = 1; j < fpts-1; j++) {
+        for (j = 1; j < fpts; j++) {
             fdvec[i][j].cx_real = 2.* (out[j][0]*out[j][0] + out[j][1]*out[j][1])/intres;
             fdvec[i][j].cx_imag = 0;
             noipower += fdvec[i][j].cx_real;
             if (!finite(noipower))
                 break;
         }
-        fdvec[i][fpts-1].cx_real = out[fpts-1][0]*out[fpts-1][0]/intres;
-        fdvec[i][fpts-1].cx_imag = 0;
+        if (length % 2 == 0) {
+            fdvec[i][fpts-1].cx_real = out[fpts-1][0]*out[fpts-1][0]/intres;
+            fdvec[i][fpts-1].cx_imag = 0;
+        }
         noipower += fdvec[i][fpts-1].cx_real;
 
 #else /* Green's FFT */

@@ -54,6 +54,14 @@ DIObindCSC (GENmodel *inModel, CKTcircuit *ckt)
                     CREATE_KLU_BINDING_TABLE(DIOposSwPrimeTempPtr, DIOposSwPrimeTempBinding, DIOposSwPrimeNode, DIOtempNode);
                 }
             }
+            /* rev-rec */
+            if (model->DIOsoftRevRecParamGiven && model->DIOsoftRevRecParam!=0 && model->DIOtransitTime!=0) {
+                CREATE_KLU_BINDING_TABLE(DIOqpQpPtr      , DIOqpQpBinding      , DIOqpNode, DIOqpNode);
+                CREATE_KLU_BINDING_TABLE(DIOqpPosPrimePtr, DIOqpPosPrimeBinding, DIOqpNode, DIOposPrimeNode);
+                CREATE_KLU_BINDING_TABLE(DIOqpNegPtr     , DIOqpNegBinding     , DIOqpNode, DIOnegNode);
+                CREATE_KLU_BINDING_TABLE(DIOposPrimeQpPtr, DIOposPrimeQpBinding, DIOposPrimeNode, DIOqpNode);
+                CREATE_KLU_BINDING_TABLE(DIOnegQpPtr     , DIOnegQpBinding     , DIOnegNode, DIOqpNode);
+            }
         }
     }
 
@@ -103,6 +111,14 @@ DIObindCSCComplex (GENmodel *inModel, CKTcircuit *ckt)
                     CONVERT_KLU_BINDING_TABLE_TO_COMPLEX(DIOposSwPrimeTempPtr, DIOposSwPrimeTempBinding, DIOposSwPrimeNode, DIOtempNode);
                 }
             }
+            /* rev-rec */
+            if (model->DIOsoftRevRecParamGiven && model->DIOsoftRevRecParam!=0 && model->DIOtransitTime!=0) {
+                CONVERT_KLU_BINDING_TABLE_TO_COMPLEX(DIOqpQpPtr      , DIOqpQpBinding      , DIOqpNode, DIOqpNode);
+                CONVERT_KLU_BINDING_TABLE_TO_COMPLEX(DIOqpPosPrimePtr, DIOqpPosPrimeBinding, DIOqpNode, DIOposPrimeNode);
+                CONVERT_KLU_BINDING_TABLE_TO_COMPLEX(DIOqpNegPtr     , DIOqpNegBinding     , DIOqpNode, DIOnegNode);
+                CONVERT_KLU_BINDING_TABLE_TO_COMPLEX(DIOposPrimeQpPtr, DIOposPrimeQpBinding, DIOposPrimeNode, DIOqpNode);
+                CONVERT_KLU_BINDING_TABLE_TO_COMPLEX(DIOnegQpPtr     , DIOnegQpBinding     , DIOnegNode, DIOqpNode);
+            }
         }
     }
 
@@ -151,6 +167,14 @@ DIObindCSCComplexToReal (GENmodel *inModel, CKTcircuit *ckt)
                     CONVERT_KLU_BINDING_TABLE_TO_REAL(DIOtempPosSwPrimePtr, DIOtempPosSwPrimeBinding, DIOtempNode, DIOposSwPrimeNode);
                     CONVERT_KLU_BINDING_TABLE_TO_REAL(DIOposSwPrimeTempPtr, DIOposSwPrimeTempBinding, DIOposSwPrimeNode, DIOtempNode);
                 }
+            }
+            /* rev-rec */
+            if (model->DIOsoftRevRecParamGiven && model->DIOsoftRevRecParam!=0 && model->DIOtransitTime!=0) {
+                CONVERT_KLU_BINDING_TABLE_TO_REAL(DIOqpQpPtr      , DIOqpQpBinding      , DIOqpNode, DIOqpNode);
+                CONVERT_KLU_BINDING_TABLE_TO_REAL(DIOqpPosPrimePtr, DIOqpPosPrimeBinding, DIOqpNode, DIOposPrimeNode);
+                CONVERT_KLU_BINDING_TABLE_TO_REAL(DIOqpNegPtr     , DIOqpNegBinding     , DIOqpNode, DIOnegNode);
+                CONVERT_KLU_BINDING_TABLE_TO_REAL(DIOposPrimeQpPtr, DIOposPrimeQpBinding, DIOposPrimeNode, DIOqpNode);
+                CONVERT_KLU_BINDING_TABLE_TO_REAL(DIOnegQpPtr     , DIOnegQpBinding     , DIOnegNode, DIOqpNode);
             }
         }
     }

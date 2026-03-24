@@ -2371,6 +2371,8 @@ BSIM4instance **InstArray;
                 here->BSIM4xgw = model->BSIM4xgw;
             if (!here->BSIM4ngconGiven)
                 here->BSIM4ngcon = model->BSIM4ngcon;
+            if (!here->BSIM4dtempGiven)
+                here->BSIM4dtemp = 0;
 
             /* Process instance model selectors, some
              * may override their global counterparts

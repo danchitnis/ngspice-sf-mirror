@@ -165,6 +165,10 @@ IFvalue *select)
             here->BSIM4wnflag = value->iValue;
             here->BSIM4wnflagGiven = TRUE;
             break;
+        case BSIM4_DTEMP:
+            here->BSIM4dtemp = value->rValue;
+            here->BSIM4dtempGiven = TRUE;
+            return(OK);
         case BSIM4_XGW:
             here->BSIM4xgw = value->rValue;
             here->BSIM4xgwGiven = TRUE;

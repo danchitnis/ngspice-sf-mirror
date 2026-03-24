@@ -2,7 +2,7 @@
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Thomas L. Quarles
 Modified: 2000 AlansFixes
-Modified by Paolo Nenzi 2003 and Dietmar Warning 2012
+Modified by Paolo Nenzi 2003, Dietmar Warning 2012 and Arpad Buermen 2025
 **********/
 
 #include "ngspice/ngspice.h"
@@ -65,6 +65,10 @@ DIOload(GENmodel *inModel, CKTcircuit *ckt)
     double dIdio_dT, dIth_dVdio=0.0, dIrs_dT=0.0, dIth_dVrs=0.0, dIth_dT=0.0;
     double dIdioSw_dT=0.0, dIth_dVdioSw=0.0, dIth_dVrssw=0.0, dIrssw_dT=0.0;
     double argsw_dT, csat_dT, csatsw_dT;
+    /* rev-rec */
+    double cdres, gdres;
+    double vqp;
+    double capsr, gqcsr, cqcsr;
 
     /*  loop through all the diode models */
     for( ; model != NULL; model = DIOnextModel(model)) {
@@ -74,6 +78,7 @@ DIOload(GENmodel *inModel, CKTcircuit *ckt)
                 here=DIOnextInstance(here)) {
 
             int selfheat = ((here->DIOtempNode > 0) && (here->DIOthermal) && (model->DIOrth0Given));
+            int revrec = ((here->DIOqpNode > 0) && (model->DIOsoftRevRecParam!=0) && (here->DIOtTransitTime!=0));
 
             /*
              *     this routine loads diodes for dc and transient analyses.
@@ -120,10 +125,12 @@ DIOload(GENmodel *inModel, CKTcircuit *ckt)
                     vd = *(ckt->CKTstate1 + here->DIOvoltage);
                     if (model->DIOresistSWGiven) vdsw = *(ckt->CKTstate1 + here->DIOvoltageSW);
                     delTemp = *(ckt->CKTstate1 + here->DIOdeltemp);
+                    vqp = *(ckt->CKTstate1 + here->DIOqp);
                 } else{
                     vd = *(ckt->CKTstate0 + here->DIOvoltage);
                     if (model->DIOresistSWGiven) vdsw = *(ckt->CKTstate0 + here->DIOvoltageSW);
                     delTemp = *(ckt->CKTstate0 + here->DIOdeltemp);
+                    vqp = *(ckt->CKTstate0 + here->DIOqp);
                 }
 
 #ifdef SENSDEBUG
@@ -137,24 +144,30 @@ DIOload(GENmodel *inModel, CKTcircuit *ckt)
                 vd= *(ckt->CKTstate0 + here->DIOvoltage);
                 if (model->DIOresistSWGiven) vdsw = *(ckt->CKTstate0 + here->DIOvoltageSW);
                 delTemp = *(ckt->CKTstate0 + here->DIOdeltemp);
+                vqp= *(ckt->CKTstate0 + here->DIOqp);
             } else if (ckt->CKTmode & MODEINITTRAN) {
                 vd= *(ckt->CKTstate1 + here->DIOvoltage);
                 if (model->DIOresistSWGiven) vdsw = *(ckt->CKTstate1 + here->DIOvoltageSW);
                 delTemp = *(ckt->CKTstate1 + here->DIOdeltemp);
+                vqp= *(ckt->CKTstate1 + here->DIOqp);
             } else if ( (ckt->CKTmode & MODEINITJCT) &&
                     (ckt->CKTmode & MODETRANOP) && (ckt->CKTmode & MODEUIC) ) {
                 vd=here->DIOinitCond;
                 if (model->DIOresistSWGiven) vdsw = here->DIOinitCond;
+                vqp=0;
             } else if ( (ckt->CKTmode & MODEINITJCT) && here->DIOoff) {
                 vd=vdsw=0;
                 delTemp = 0.0;
+                vqp=0;
             } else if ( ckt->CKTmode & MODEINITJCT) {
                 vd=here->DIOtVcrit;
                 vdsw=here->DIOtVcritSW;
                 delTemp = 0.0;
+                vqp=0;
             } else if ( ckt->CKTmode & MODEINITFIX && here->DIOoff) {
                 vd=vdsw=0;
                 delTemp = 0.0;
+                vqp=0;
             } else {
 #ifndef PREDICTOR
                 if (ckt->CKTmode & MODEINITPRED) {
@@ -177,12 +190,22 @@ DIOload(GENmodel *inModel, CKTcircuit *ckt)
                         *(ckt->CKTstate0 + here->DIOdIdioSW_dT) =
                                 *(ckt->CKTstate1 + here->DIOdIdioSW_dT);
                     }
+                    vqp = DEVpred(ckt,here->DIOqp);
+                    *(ckt->CKTstate0 + here->DIOresCurrent) =
+                            *(ckt->CKTstate1 + here->DIOresCurrent);
+                    *(ckt->CKTstate0 + here->DIOresConduct) =
+                            *(ckt->CKTstate1 + here->DIOresConduct);
+                    *(ckt->CKTstate0 + here->DIOcqcsr) =
+                            *(ckt->CKTstate1 + here->DIOcqcsr);
+                    *(ckt->CKTstate0 + here->DIOgqcsr) =
+                            *(ckt->CKTstate1 + here->DIOgqcsr);
                 } else {
 #endif /* PREDICTOR */
                     vd = *(ckt->CKTrhsOld+here->DIOposPrimeNode)-
                             *(ckt->CKTrhsOld + here->DIOnegNode);
                     if (model->DIOresistSWGiven) vdsw = *(ckt->CKTrhsOld+here->DIOposSwPrimeNode)-
                                                              *(ckt->CKTrhsOld + here->DIOnegNode);
+
                     if (selfheat)
                         delTemp = *(ckt->CKTrhsOld + here->DIOtempNode);
                     else
@@ -192,6 +215,7 @@ DIOload(GENmodel *inModel, CKTcircuit *ckt)
                         *(ckt->CKTstate1+here->DIOqth) =
                             *(ckt->CKTstate0+here->DIOqth);
                     }
+                    vqp = *(ckt->CKTrhsOld+here->DIOqpNode);
 #ifndef PREDICTOR
                 }
 #endif /* PREDICTOR */
@@ -238,6 +262,11 @@ DIOload(GENmodel *inModel, CKTcircuit *ckt)
                                             gdsw= *(ckt->CKTstate0 + here->DIOconductSW);
                                             dIdioSw_dT= *(ckt->CKTstate0 + here->DIOdIdioSW_dT);
                                         }
+                                        vqp= *(ckt->CKTstate0 + here->DIOqp);
+                                        cdres= *(ckt->CKTstate0 + here->DIOresCurrent);
+                                        gdres= *(ckt->CKTstate0 + here->DIOresConduct);
+                                        cqcsr= *(ckt->CKTstate0 + here->DIOcqcsr);
+                                        gqcsr= *(ckt->CKTstate0 + here->DIOgqcsr);
                                         goto load;
                                     }
                                 }
@@ -304,7 +333,7 @@ next1:
 
             if (model->DIOsatSWCurGiven) {               /* sidewall current */
                 double vds;
-                if (model->DIOresistSWGiven) 
+                if (model->DIOresistSWGiven)
                     vds = vdsw;                          /* sidewall voltage used */
                 else
                     vds = vd;                            /* common voltage used */
@@ -470,7 +499,6 @@ next1:
                     gdb = ((1+sqrt_ikx)*gdb + cdb*gdb/(2*sqrt_ikx*ikr_area_m))/(1+2*sqrt_ikx - cdb/ikr_area_m);
                     cdb = cdb/(1+sqrt_ikx);
                 }
-
             }
 
             if ( (model->DIOforwardSWKneeCurrentGiven) && (cdsw > 1.0e-18) ) {
@@ -492,6 +520,11 @@ next1:
                 dIdio_dT = cdb_dT;
                 dIdioSw_dT = cdsw_dT;
             }
+
+            cdres = cd;
+            gdres = gd;
+            cqcsr = 0;
+            gqcsr = 0;
 
             if ((ckt->CKTmode & (MODEDCTRANCURVE | MODETRAN | MODEAC | MODEINITSMSIG)) ||
                      ((ckt->CKTmode & MODETRANOP) && (ckt->CKTmode & MODEUIC))) {
@@ -528,22 +561,46 @@ next1:
                     deplcapSW = czof2SW*(here->DIOtF3SW+model->DIOgradingSWCoeff*vdx/here->DIOtJctSWPot);
                 }
 
-                diffcharge = here->DIOtTransitTime*cd;
-                diffcap = here->DIOtTransitTime*gd;
-                if (!model->DIOresistSWGiven) {
+                if (revrec) {
+                    /*
+                      soft recovery with TT!=0
+                      add only depletion capacitance.
+                    */
                     *(ckt->CKTstate0 + here->DIOcapCharge) =
-                            diffcharge + deplcharge + deplchargeSW + (here->DIOcmetal + here->DIOcpoly)*vd;
-                    capd = diffcap + deplcap + deplcapSW + here->DIOcmetal + here->DIOcpoly;
+                            deplcharge + deplchargeSW + (here->DIOcmetal + here->DIOcpoly)*vd;
+
+                    capd = deplcap + deplcapSW + here->DIOcmetal + here->DIOcpoly;
                     here->DIOcap = capd;
+                    /*
+                      DIOcap is now equal only to depletion capacitance + overlap capacitance.
+                      Diffusion capacitance is modelled via Qp so there is no clear way to define it.
+                    */
+
+                    /* Now prepare the charge for the capacitor connected to the QP node */
+                    *(ckt->CKTstate0 + here->DIOsrcapCharge) = here->DIOtTransitTime * vqp;
+                    capsr = here->DIOtTransitTime;
                 } else {
-                    *(ckt->CKTstate0 + here->DIOcapCharge) =
-                            diffcharge + deplcharge + (here->DIOcmetal + here->DIOcpoly)*vd;
-                    capd = diffcap + deplcap + here->DIOcmetal + here->DIOcpoly;
-                    here->DIOcap = capd;
-                    *(ckt->CKTstate0 + here->DIOcapChargeSW) =
-                            deplcapSW;
-                    capdsw = deplcapSW;
-                    here->DIOcapSW = capdsw;
+                    /* no soft recovery of soft recovery with TT=0 (i.e. no soft recovery due to TT=0) */
+                    diffcharge = here->DIOtTransitTime*cd;
+                    diffcap = here->DIOtTransitTime*gd;
+                    if (!model->DIOresistSWGiven) {
+                        *(ckt->CKTstate0 + here->DIOcapCharge) =
+                                diffcharge + deplcharge + deplchargeSW + (here->DIOcmetal + here->DIOcpoly)*vd;
+                        capd = diffcap + deplcap + deplcapSW + here->DIOcmetal + here->DIOcpoly;
+                        here->DIOcap = capd;
+                    } else {
+                        *(ckt->CKTstate0 + here->DIOcapCharge) =
+                                diffcharge + deplcharge + (here->DIOcmetal + here->DIOcpoly)*vd;
+                        capd = diffcap + deplcap + here->DIOcmetal + here->DIOcpoly;
+                        here->DIOcap = capd;
+                        *(ckt->CKTstate0 + here->DIOcapChargeSW) =
+                                deplcapSW;
+                        capdsw = deplcapSW;
+                        here->DIOcapSW = capdsw;
+                    }
+
+                    *(ckt->CKTstate0 + here->DIOsrcapCharge) = 0;
+                    capsr = 0;
                 }
                 /*
                  *   store small-signal parameters
@@ -564,6 +621,10 @@ next1:
                                 *(ckt->CKTstate0 + here->DIOconductSW) = gdsw;
                                 *(ckt->CKTstate0 + here->DIOdIdioSW_dT) = dIdioSw_dT;
                             }
+                            *(ckt->CKTstate0 + here->DIOresCurrent) = cdres;
+                            *(ckt->CKTstate0 + here->DIOresConduct) = gdres;
+                            *(ckt->CKTstate0 + here->DIOcqcsr) = cqcsr;
+                            *(ckt->CKTstate0 + here->DIOgqcsr) = gqcsr;
 #ifdef SENSDEBUG
                             printf("storing small signal parameters\n");
                             printf("cd = %.7e,vd = %.7e\n",cd,vd);
@@ -580,6 +641,7 @@ next1:
                         *(ckt->CKTstate0 + here->DIOcurrent) = cd;
                         if (model->DIOresistSWGiven)
                             *(ckt->CKTstate0 + here->DIOcurrentSW) = cdsw;
+                        *(ckt->CKTstate0 + here->DIOresCurrent) = cdres;
 #ifdef SENSDEBUG
                         printf("storing parameters for transient sensitivity\n"
                                 );
@@ -612,6 +674,21 @@ next1:
                         if (model->DIOresistSWGiven)
                             *(ckt->CKTstate1 + here->DIOcapCurrentSW) =
                                     *(ckt->CKTstate0 + here->DIOcapCurrentSW);
+                    }
+                    if (revrec) {
+                        /* soft recovery subcircuit */
+                        if (ckt->CKTmode & MODEINITTRAN) {
+                            *(ckt->CKTstate1 + here->DIOsrcapCharge) =
+                                    *(ckt->CKTstate0 + here->DIOsrcapCharge);
+                        }
+                        error = NIintegrate(ckt,&geq,&ceq,capsr,here->DIOsrcapCharge);
+                        if(error) return(error);
+                        gqcsr = geq;
+                        cqcsr = *(ckt->CKTstate0 + here->DIOsrcapCurrent);
+                        if (ckt->CKTmode & MODEINITTRAN) {
+                            *(ckt->CKTstate1 + here->DIOsrcapCurrent) =
+                                    *(ckt->CKTstate0 + here->DIOsrcapCurrent);
+                        }
                     }
                     if (selfheat)
                     {
@@ -654,6 +731,11 @@ next2:      *(ckt->CKTstate0 + here->DIOvoltage) = vd;
                 *(ckt->CKTstate0 + here->DIOconductSW) = gdsw;
                 *(ckt->CKTstate0 + here->DIOdIdioSW_dT) = dIdioSw_dT;
             }
+            *(ckt->CKTstate0 + here->DIOqp) = vqp;
+            *(ckt->CKTstate0 + here->DIOresCurrent) = cdres;
+            *(ckt->CKTstate0 + here->DIOresConduct) = gdres;
+            *(ckt->CKTstate0 + here->DIOcqcsr) = cqcsr;
+            *(ckt->CKTstate0 + here->DIOgqcsr) = gqcsr;
             if(SenCond)  continue;
 
 #ifndef NOBYPASS
@@ -707,9 +789,9 @@ next2:      *(ckt->CKTstate0 + here->DIOvoltage) = vd;
                 *(ckt->CKTrhs + here->DIOtempNode)     +=  Ith - dIth_dVdio*vd - dIth_dVrs*vrs - dIth_dT*delTemp - ceqqth;
             }
             if (model->DIOresistSWGiven) {
-                cdeq=cdsw-gdsw*vdsw;
-                *(ckt->CKTrhs + here->DIOnegNode) += cdeq;
-                *(ckt->CKTrhs + here->DIOposSwPrimeNode) -= cdeq;
+                double cdeqsw=cdsw-gdsw*vdsw;
+                *(ckt->CKTrhs + here->DIOnegNode) += cdeqsw;
+                *(ckt->CKTrhs + here->DIOposSwPrimeNode) -= cdeqsw;
                 if (selfheat) {
                     *(ckt->CKTrhs + here->DIOposNode)        +=  dIrssw_dT*delTemp;
                     *(ckt->CKTrhs + here->DIOposSwPrimeNode) +=  dIdioSw_dT*delTemp - dIrssw_dT*delTemp;
@@ -753,6 +835,29 @@ next2:      *(ckt->CKTstate0 + here->DIOvoltage) = vd;
                     (*(here->DIOposSwPrimeTempPtr) +=  dIdioSw_dT - dIrssw_dT);
                     (*(here->DIOnegTempPtr)        += -dIdioSw_dT);
                 }
+            }
+
+            if (revrec) {
+                double fac, ceqrr, dcrrdvd, grr;
+                double ceqrrd, geqrrd;
+                /* QP subcircuit */
+                fac = here->DIOtTransitTime / model->DIOsoftRevRecParam;
+                dcrrdvd = fac*gdres;
+                ceqrr = -fac*cdres + cqcsr + dcrrdvd*vd - gqcsr*vqp;
+                grr = 1/model->DIOsoftRevRecParam;
+                *(ckt->CKTrhs + here->DIOqpNode) -= ceqrr;
+                *(here->DIOqpQpPtr)       += grr + gqcsr;
+                *(here->DIOqpPosPrimePtr) += -dcrrdvd;
+                *(here->DIOqpNegPtr)      += dcrrdvd;
+                /* Contribution to diode current */
+                here->DIOqpGain = (1 - model->DIOsoftRevRecParam) / here->DIOtTransitTime;
+                /* Linear contribution -(1-vp)/tau*ddt(Qp) */
+                geqrrd = here->DIOqpGain*gqcsr;
+                ceqrrd = here->DIOqpGain*cqcsr - geqrrd*vqp;
+                *(ckt->CKTrhs + here->DIOposPrimeNode) -= ceqrrd;
+                *(ckt->CKTrhs + here->DIOnegNode) += ceqrrd;
+                *(here->DIOposPrimeQpPtr) += geqrrd;
+                *(here->DIOnegQpPtr) += -geqrrd;
             }
         }
     }

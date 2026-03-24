@@ -15,6 +15,7 @@ if (wl && wl->wl_word)
     if (load_opus(wl->wl_word)) {
         fprintf(stderr, "Error: Library %s couldn't be loaded!\n", wl->wl_word);
         ft_spiniterror = TRUE;
+        ft_codemodelerror = TRUE;
         if (ft_stricterror) /* if set in spinit */
             controlled_exit(EXIT_BAD);
     }
@@ -34,6 +35,7 @@ void com_osdi(wordlist *wl)
         if (load_osdi(ww->wl_word)) {
             fprintf(cp_err, "Error: Library %s couldn't be loaded!\n", ww->wl_word);
             ft_spiniterror = TRUE;
+            ft_osdierror = TRUE;
             if (ft_stricterror)
                 controlled_exit(EXIT_BAD);
          }

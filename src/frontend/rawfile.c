@@ -22,7 +22,6 @@ Author: 1986 Wayne A. Christopher, U. C. Berkeley CAD Group
 #include "ngspice/compatmode.h"
 
 extern IFsimulator SIMinfo;
-extern char Spice_Build_Date[];
 
 static void fixdims(struct dvec *v, char *s);
 
@@ -114,7 +113,8 @@ void raw_write(char *name, struct plot *pl, bool app, bool binary)
 
     fprintf(fp, "Title: %s\n", pl->pl_title);
     fprintf(fp, "Date: %s\n", pl->pl_date);
-    fprintf(fp, "Command: %s-%s, Build %s\n", ft_sim->simulator, ft_sim->version, Spice_Build_Date);
+    if (ft_sim) /* not available when old app ngscovert is made */
+        fprintf(fp, "Command: %s-%s, Build %s\n", ft_sim->simulator, ft_sim->version, Spice_Build_Date);
     fprintf(fp, "Plotname: %s\n", pl->pl_name);
     fprintf(fp, "Flags: %s%s\n",
             realflag ? "real" : "complex", raw_padding ? "" : " unpadded");

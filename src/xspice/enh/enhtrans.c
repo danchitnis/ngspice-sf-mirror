@@ -117,10 +117,8 @@ ENHtranslate_poly(
         l1->nextcard = l2;
         d->nextcard  = l1;
 
-        /* PN 2004: Add original linenumber to ease the debug process
-         * for malfromned netlist
-         */
-
+        /* Add original linenumber to ease the debug process
+         * for malformed netlist */
         l1->linenum = d->linenum;
         l2->linenum = d->linenum;
 
@@ -301,7 +299,7 @@ static char *two2three_translate(
     char  **out_conn;
     char  **in_conn;
     char  **coef;
-
+    char* multibeg, *multiend, *multi = NULL;
     char  *card;
 
 
@@ -312,6 +310,20 @@ static char *two2three_translate(
 
     /* Put the first character into local storage for checking type */
     type = *orig_card;
+
+    /* There may be a multiplier m=val 
+       Remove it here, add it later */
+    multibeg = strstr(orig_card, " m=");
+    if (multibeg) {
+        multiend = multibeg + 3;
+        while (*multiend == ' ')
+            multiend++;
+        while (*multiend && *multiend != ' ')
+            multiend++;
+        multi = copy_substring(multibeg, multiend);
+        while (multibeg < multiend)
+            *(multibeg++) = ' ';
+    }
 
     /* Count the number of tokens for use in parsing */
     num_tokens = count_tokens(orig_card);
@@ -356,8 +368,8 @@ static char *two2three_translate(
 
     if(num_coefs < 1) {
         char *errmsg;
-        printf("ERROR - Number of connections differs from poly dimension\n");
-        printf("ERROR  while parsing: %s\n", orig_card);
+        fprintf(stderr, "ERROR - Number of connections differs from poly dimension\n");
+        fprintf(stderr, "       while parsing: %s\n", orig_card);
         errmsg = copy("ERROR in two2three_translate -- Argument to poly() is not an integer\n");
         *inst_card = copy("* ERROR - Number of connections differs from poly dimension\n");
         *mod_card  = copy(" * ERROR - Number of connections differs from poly dimension\n");
@@ -414,6 +426,9 @@ static char *two2three_translate(
     for(i = 0; i < num_coefs; i++)
         mod_card_len += strlen(coef[i]) + 1;
 
+    if (multi && (type == 'g' || type == 'G' || type == 'f'|| type == 'F'))
+        mod_card_len += strlen(multi) + 1;
+
     /* Allocate space for the cards and write them into the strings */
 
     *inst_card = TMALLOC(char, inst_card_len);
@@ -459,6 +474,17 @@ static char *two2three_translate(
     for(i = 0; i < num_coefs; i++)
         sprintf(*mod_card + strlen(*mod_card), "%s ", coef[i]);
     sprintf(*mod_card + strlen(*mod_card), "]");
+
+    if (multi && (type == 'g' || type == 'G' || type == 'f' || type == 'F')) {
+        sprintf(*mod_card + strlen(*mod_card), " %s", multi);
+        tfree(multi);
+    }
+
+    if (multi && (type == 'e' || type == 'E' || type == 'h' || type == 'H')) {
+        fprintf(stderr, "Warning: multiplier m not available for E and H poly sources, ignored as\n"
+            "    %s\n", orig_card);
+        tfree(multi);
+    }
 
 #ifdef TRACE
     /* SDB debug statement */
