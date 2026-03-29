@@ -1,7 +1,7 @@
-  Ngspice F.A.Q.Version 2.9 (ngspice-45 release)
+  Ngspice F.A.Q.Version 2.10 (ngspice-46 release)
 
   Maintained by Holger Vogt
-  Last update: Aug 29 2025
+  Last update: Mar 29 2026
 
   This document contains the Frequently Asked Questions (and Answers)
   for ngspice project.
@@ -256,7 +256,7 @@
 
   The latest version released is:
 
-  ngspice-45 (released on August 31, 2025)
+  ngspice-46 (released on March 29, 2026)
 
 
  2.2.  What are the latest features in the current release?
@@ -268,8 +268,9 @@
 
   Ngspice, as the original Spice3 (and Xspice and Cider) is a command
   line simulator, but with a graphics output capability. Excellent
-  open source third party tool for schematic capture (KiCad, XSCHEM, 
-  Qucs-S and others) are available.
+  open source third party tool for schematic capture (KiCad, XSCHEM,
+  Qucs-S and others) are available
+  (see https://ngspice.sourceforge.io/resources.html).
 
 
  2.4.  Who are the authors of ngspice?
@@ -312,7 +313,7 @@
   a GNU C/C++ compiler and a LINUX environment to compile it. Ngspice can
   be compiled under Windows using the mingw or cygwin environment as
   well as MS Visual Studio. It will readily compile on macOS, Intel CPUs or
-  Apple M1 - M4. Wasm, FreeBSD or Solaris will do, but are not officially
+  Apple Silicon. Wasm, FreeBSD or Solaris will do, but are not officially
   supported.
 
 
@@ -357,7 +358,7 @@
 
  4.4.  Disclaimer and Copyright
 
-  Copyright: Holger Vogt, 2025
+  Copyright: Holger Vogt, 2026
   License: Creative Commons Attribution Share-Alike (CC-BY-SA) v4.0.
   This document is provided as is. The information in it is not
   warranted to be correct: you use it at your own risk.

@@ -50,7 +50,7 @@ This file describes the procedures to install ngspice from sources.
  library and ngspice as a tcl/tk library.
  
  Compilation to 64 bit is recommended and available per default in
- the ./compile_linux_new.sh compile script. 32 bit might be possible,
+ the ./compile_linux.sh and other compile scripts. 32 bit might be possible,
  but is not tested.
 
  The following software must be installed in your system to compile
@@ -68,7 +68,7 @@ This file describes the procedures to install ngspice from sources.
  internal fft algorithms.
 
  If you want to compile the source from the git repository, or if you want to
- use the compile script ./compile_linux_new.sh, you will need additional software:
+ use the compile script ./compile_linux.sh, you will need additional software:
  autoconf, automake, libtool.
 
  The following software may be needed when enabling additional features:
@@ -81,21 +81,22 @@ This file describes the procedures to install ngspice from sources.
  For compiling ngspice as a shared library, see section 1.4.
 
 
-1.2 Install from tarball (e.g. ngspice-45.tar.gz)
+1.2 Install from tarball (e.g. ngspice-46.tar.gz)
 
  This covers installation from a release distribution (for example
- ngspice-45.tar.gz, the so called tar ball).
+ ngspice-46.tar.gz, the so called tar ball).
 
  After downloading the tar ball to a local directory, unpack it by command:
 
- $ tar -zxvf ngspice-44.tar.gz
+ $ tar -zxvf ngspice-46.tar.gz
 
  Now change directories in to the top-level source directory (where this
  INSTALL file can be found).
 
  The most comfortable way to compile ngspice is running the compile script
- compile_linux.sh within the terminal window by ./compile_linux.sh. The
- script has to be declared as 'executable', and admin
+ compile_linux.sh within the terminal window by 
+ sudo ./compile_linux.sh.
+ The script has to be declared as 'executable', and admin
  rights are required to allow the installation of ngspice.
 
  CentOS users may need to add -std=c99 to the CFLAGS in the ../configure
@@ -568,7 +569,7 @@ This file describes the procedures to install ngspice from sources.
 
 4 NGSPICE COMPILATION UNDER macOS M1 - M4
   =======================================
-  (tested on a mac mini with Sonoma 13.2.1 and M2 CPU)
+  (tested on a mac mini with Sequoia 15.7.4 and M2 CPU)
 
 4.1 Prerequisites
  1. Install xcode command line tools
@@ -588,8 +589,9 @@ This file describes the procedures to install ngspice from sources.
     compile_macos_clang_M2_shared.sh
 
 
-5 NGSPICE COMPILATION UNDER macOS (tested with Intel CPUs)
-  ========================================================
+5 NGSPICE COMPILATION UNDER macOS 
+(previously tested for ngspice-42 with Intel CPUs)
+  ================================================
 
 5.1 Use precompiled binary package
  1. Install an X11 interface (like Xquartz)
