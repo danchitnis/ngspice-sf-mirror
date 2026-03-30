@@ -556,16 +556,19 @@ OUTpD_memory(runDesc *run, IFvalue *refValue, IFvalue *valuePtr)
 {
     int i, n = run->numData;
 
+
 #ifndef __APPLE__
     if (!cp_getvar("no_mem_check", CP_BOOL, NULL, 0)) {
         /* Estimate the required memory */
-        size_t memrequ = (size_t)n * vlength2delta(0) * sizeof(double);
+        int timesteps = vlength2delta(0);
+        size_t memrequ = (size_t)n * timesteps * sizeof(double);
         size_t memavail = getAvailableMemorySize();
 
         if (memrequ > memavail) {
-            fprintf(stderr, "\nError: memory required (%Id Bytes)\n"
-                "       is more than memory available (%Id Bytes)!\n",
-                memrequ, memavail);
+            fprintf(stderr, "\nError: memory required (%zu Bytes), made of\n"
+                "       %d nodes and approximately %d time steps,\n"
+                "       is more than the memory available (%zu Bytes)!\n",
+                memrequ, n, timesteps, memavail);
             fprintf(stderr, "Setting the output memory is not possible.\n");
             controlled_exit(1);
         }
