@@ -13,7 +13,7 @@ Mixed IO types
 .tran 1e-5 1e-3 
 .save all
 * 
-v1 1 0 0.0 pulse(0 1 1e-4 1e-6) 
+v1 1 0 0.0 pulse(0 1 1e-4 1e-5 1e-5 1e-3 1e-3)
 r1 1 0 1k 
 * 
 abridge1 [1] [enable] atod 
@@ -94,4 +94,11 @@ r2 out 0 1e12
 * 
 .ends opamp
 *  
+.control
+run
+plot lpf_out v(a_out)
+plot v(xlpf.outint)
+eprint div8_out
+.endc
+*
 .end
