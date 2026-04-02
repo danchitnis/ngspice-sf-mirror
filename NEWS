@@ -1,3 +1,37 @@
+Ngspice-46, March 29th, 2026
+============
+- New features:
+    + Updates to BSIM4.
+    + Enable CIDER with KLU for DC, OP, and TRAN analyses.
+    + Support Exxx n1 n2 nc1 nc2 TABLE = (x0, y0, x1, y1, x2, y2).
+    + Add analog code model astate, which reports previous states of a node.
+    + Improve code model pwlts by adding breakpoints.
+    + new functions vec() and var() for .param expressions.
+    + Add variable deltacheck to measure the CKTdelta[0].
+    + Remove ancient IPC code.
+    + Update to VDMOS model.
+    + Equalise the last two time steps before a breakpoint.
+    + Update to diode model, especially for the sidewall diode.
+    + Enable optional voltage based truncation error correction.
+    + Add a function m3avg(vector) for filtering of trap ringing.
+    + Remove ngnutmeg from build list of old apps.
+    + Add filtering by moving window with function 'newvec = mtimeavg(vec)'.
+    + If compat mode PS, GND is not declared as global, and is not
+      replaced inside of a subcircuit.
+    + New variable measureprec to set the number of digits for 'meas' outputs.
+    + Improve paramerization for V PULSE source.
+    + Add parameter m (multiplier), while translating from G or F source
+      to code model spice2poly.
+    + Allow Cd as a valid C reference designator for a capacitor.
+    + Prepare for binning of N devices.
+    + Add parameter numPeriod to 'fourier' command.
+    + FM and FC exchange place in the parameter sequence of SFFM v and i source.
+    + Diode soft recovery model  with iterated charge node.
+    + 'linearize' command with new parameter np=xx, xx may be a number or auto2n.
+    + update to the 'fft' command on scaling and frequency binning.
+    + Remove 'skywater' option, replace by equivalent variable 'no_auto_braces'.
+
+
 Ngspice-45.2, Sept. 5th, 2025
 ============
 - Bug-fix release

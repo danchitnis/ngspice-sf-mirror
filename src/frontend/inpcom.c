@@ -8426,7 +8426,7 @@ static void inp_quote_params(struct card *c, struct card *end_c,
 {
     bool in_control = FALSE;
 
-    if (ft_skywaterpdk)
+    if (cp_getvar("no_auto_braces", CP_BOOL, NULL, 0))
         return;
 
     if (newcompat.hs && cp_getvar("no_auto_braces", CP_BOOL, NULL, 0))

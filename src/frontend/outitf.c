@@ -38,6 +38,11 @@ extern int EVTsetup_plot(CKTcircuit* ckt, char* plotname);
 extern IFsimulator SIMinfo;
 extern char Spice_Build_Date[];
 
+extern unsigned long long getMemorySize(void);
+extern unsigned long long getPeakRSS(void);
+extern unsigned long long getCurrentRSS(void);
+extern unsigned long long getAvailableMemorySize(void);
+
 static int beginPlot(JOB *analysisPtr, CKTcircuit *circuitPtr, char *cktName, char *analName,
                      char *refName, int refType, int numNames, char **dataNames, int dataType,
                      bool windowed, runDesc **runp);
@@ -60,6 +65,7 @@ static bool getSpecial(dataDesc *desc, runDesc *run, IFvalue *val);
 static void freeRun(runDesc *run);
 static int InterpFileAdd(runDesc *plotPtr, IFvalue *refValue, IFvalue *valuePtr);
 static int InterpPlotAdd(runDesc *plotPtr, IFvalue *refValue, IFvalue *valuePtr);
+static inline int vlength2delta(int len);
 
 /*Output data to spice module*/
 #ifdef TCL_MODULE
@@ -549,6 +555,25 @@ static void
 OUTpD_memory(runDesc *run, IFvalue *refValue, IFvalue *valuePtr)
 {
     int i, n = run->numData;
+
+
+#ifndef __APPLE__
+    if (!cp_getvar("no_mem_check", CP_BOOL, NULL, 0)) {
+        /* Estimate the required memory */
+        int timesteps = vlength2delta(0);
+        size_t memrequ = (size_t)n * timesteps * sizeof(double);
+        size_t memavail = getAvailableMemorySize();
+
+        if (memrequ > memavail) {
+            fprintf(stderr, "\nError: memory required (%zu Bytes), made of\n"
+                "       %d nodes and approximately %d time steps,\n"
+                "       is more than the memory available (%zu Bytes)!\n",
+                memrequ, n, timesteps, memavail);
+            fprintf(stderr, "Setting the output memory is not possible.\n");
+            controlled_exit(1);
+        }
+    }
+#endif
 
     for (i = 0; i < n; i++) {
 

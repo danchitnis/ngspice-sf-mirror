@@ -124,7 +124,11 @@ are of type bool if sharedspice.h is used externally.
 */
 
 #ifndef NGSPICE_PACKAGE_VERSION
+<<<<<<< HEAD
 #define NGSPICE_PACKAGE_VERSION "45+"
+=======
+#define NGSPICE_PACKAGE_VERSION "46+"
+>>>>>>> pre-master-47
 #endif
 /* we have NG_BOOL instead of BOOL */
 #ifndef HAS_NG_BOOL

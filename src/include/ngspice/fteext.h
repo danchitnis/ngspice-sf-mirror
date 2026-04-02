@@ -250,7 +250,6 @@ extern bool ft_stricterror;
 extern bool ft_spiniterror;
 extern bool ft_codemodelerror;
 extern bool ft_osdierror;
-extern bool ft_skywaterpdk;
 
 /* parse.c */
 
