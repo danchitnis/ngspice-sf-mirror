@@ -86,37 +86,49 @@ VSRCload(GENmodel *inModel, CKTcircuit *ckt)
                 } else {
                     time = ckt->CKTtime;
                 }
-                /* use the transient functions */
+                /* use the transient functions. */
                 switch(here->VSRCfunctionType) {
 
                     default:
                         value = here->VSRCdcValue;
                         break;
 
-                    case PULSE: {
-                        double V1, V2, TD, TR, TF, PW, PER;
-                        double basetime = 0;
-                        double PHASE;
-                        double phase;
-                        double deltat;
-                        double tmax = 1e99;
+                case PULSE: {
+                    /* Parameter limits :
+                      TR negative or 0 --> TR = ckt->CKTstep
+                      TF negative or 0 --> TF = ckt->CKTstep
+                      if PW not given, but TR and TF --> PW = 0
+                      PW < 0 --> PW = ckt->CKTfinalTime
+                      PER <= 0 --> PER = ckt->CKTfinalTime
+                    */
+                    double V1, V2, TD, TR, TF, PW, PER;
+                    double basetime = 0;
+                    double PHASE;
+                    double phase;
+                    double deltat;
+                    double tmax = 1e99;
 
-                        V1 = here->VSRCcoeffs[0];
-                        V2 = here->VSRCcoeffs[1];
-                        TD = here->VSRCfunctionOrder > 2
-                           ? here->VSRCcoeffs[2] : 0.0;
-                        TR = here->VSRCfunctionOrder > 3
-                           && here->VSRCcoeffs[3] != 0.0
-                           ? here->VSRCcoeffs[3] : ckt->CKTstep;
-                        TF = here->VSRCfunctionOrder > 4
-                           && here->VSRCcoeffs[4] != 0.0
-                           ? here->VSRCcoeffs[4] : ckt->CKTstep;
+                    V1 = here->VSRCcoeffs[0];
+                    V2 = here->VSRCcoeffs[1];
+                    TD = here->VSRCfunctionOrder > 2
+                        ? here->VSRCcoeffs[2] : 0.0;
+                    TR = here->VSRCfunctionOrder > 3
+                        && here->VSRCcoeffs[3] > 0.0
+                        ? here->VSRCcoeffs[3] : ckt->CKTstep;
+                    TF = here->VSRCfunctionOrder > 4
+                        && here->VSRCcoeffs[4] > 0.0
+                        ? here->VSRCcoeffs[4] : ckt->CKTstep;
+                    if (here->VSRCfunctionOrder == 5) {
+                        PW = 0.0;
+                    }
+                    else {
                         PW = here->VSRCfunctionOrder > 5
-                           && here->VSRCcoeffs[5] != 0.0
-                           ? here->VSRCcoeffs[5] : ckt->CKTfinalTime;
-                        PER = here->VSRCfunctionOrder > 6
-                           && here->VSRCcoeffs[6] != 0.0
-                           ? here->VSRCcoeffs[6] : ckt->CKTfinalTime;
+                            && here->VSRCcoeffs[5] >= 0.0
+                            ? here->VSRCcoeffs[5] : ckt->CKTfinalTime;
+                    }
+                    PER = here->VSRCfunctionOrder > 6
+                        && here->VSRCcoeffs[6] > 0.0
+                        ? here->VSRCcoeffs[6] : ckt->CKTfinalTime;
 
                         /* shift time by delay time TD */
                         time -=  TD;
