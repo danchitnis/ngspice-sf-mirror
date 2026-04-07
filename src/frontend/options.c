@@ -25,7 +25,8 @@ bool ft_acctprint = FALSE, ft_noacctprint = FALSE, ft_listprint = FALSE;
 bool ft_nodesprint = FALSE, ft_optsprint = FALSE, ft_noinitprint = FALSE;
 bool ft_norefprint = FALSE;
 bool ft_ngdebug = FALSE, ft_nginfo = FALSE, ft_stricterror = FALSE, ft_spiniterror = FALSE;
-char *ft_codemodelerror = NULL, ft_osdierror = FALSE;
+bool ft_osdierror = FALSE;
+char* ft_codemodelerror = NULL;
 
 static void setdb(char *str);
 static struct variable *cp_enqvec_as_var(const char *vec_name,
