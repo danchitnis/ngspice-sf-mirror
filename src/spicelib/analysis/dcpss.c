@@ -718,7 +718,7 @@ DCpss(CKTcircuit *ckt,
             if (dynamic_test == 0)
             {
                 /* Test for dynamic existence */
-                fprintf (stderr, "No detectable dynamic on voltages nodes or currents branches. PSS analysis aborted\n") ;
+                fprintf (stderr, "Error: No detectable dynamic on voltages nodes or currents branches.\n    PSS analysis aborted\n") ;
 
                 /* Terminates plot in Time Domain and frees the allocated memory */
                 SPfrontEnd->OUTendPlot (job->PSSplot_td) ;
@@ -729,7 +729,7 @@ DCpss(CKTcircuit *ckt,
                 FREE (err_conv) ;
                 FREE (psstimes) ;
                 FREE (pssvalues) ;
-                return (E_PANIC) ; /* to be corrected with definition of new error macro in iferrmsg.h */
+                return (E_ERR_PSS) ; /* error macro in iferrmsg.h */
             }
             else if ((time_err_min_0 - time_temp) < 0)
             {
